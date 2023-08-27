@@ -5,12 +5,16 @@
 #include "SDL/SDL.h"
 #include "SDL_gfx/SDL2_gfxPrimitives.h"
 
+#include "gmtl/Vec.h"
+
 #include "uni_util.hpp"
 #include "uni_window.hpp"
+#include "uni_render.hpp"
 
 int main(int argc, char** argv) {
     int error_code = 0;
     std::unique_ptr<uni::Window> window;
+    gmtl::Vec2i window_center;
 
     udbg << "Initializing...\n";
     if(SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -19,8 +23,7 @@ int main(int argc, char** argv) {
     }
     udbg << "Initalization success!\n";
 
-    std::cerr << '\n';
-    udbg << "Creating window...\n";
+    unl; udbg << "Creating window...\n";
     try {
         window = std::make_unique<uni::Window>(512, 512, "Testing...");
     } catch(uni::error e) {
@@ -39,20 +42,32 @@ int main(int argc, char** argv) {
     }
     udbg << "Window creation success!\n";
 
-    std::cerr << '\n';
-    udbg << "Entering main loop...\n";
+    window_center = gmtl::Vec2i(
+        window->get_scl_width() / 2, window->get_scl_height() / 2
+    );
+
+    unl; udbg << "Entering main loop...\n";
     while(true) {
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFDD33FF));
         SDL_RenderClear(window->render());
         
-        SDL_Rect test_rect = window->map_rect(0, 0, 250, 250);
-        SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0x2264FFFF));
-        SDL_RenderFillRect(window->render(), &test_rect);
+        uni::render_fill_rect(
+            window->render(), window->map_rect(25, 50, 250, 250),
+            0x2264FFFF
+        );
 
         uni::circle test_circle = window->map_circle(250, 300, 100);
         filledCircleColor(
             window->render(), UNI_UNPACK_CIRCLE(test_circle),
             0xFF3300FF
+        );
+
+        uni::circle center = window->map_circle(
+            window_center[0], window_center[1], 25
+        );
+        filledCircleColor(
+            window->render(), UNI_UNPACK_CIRCLE(center),
+            0x55B72FFF
         );
 
         SDL_Event event;
@@ -67,7 +82,6 @@ int main(int argc, char** argv) {
 fail:
     error_code = -1;
 close:
-    std::cerr << '\n';
-    udbg << "Closing (code " << error_code << ")...\n";
+    unl; udbg << "Closing (code " << error_code << ")...\n";
     return error_code;
 }
