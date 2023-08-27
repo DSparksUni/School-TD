@@ -17,7 +17,7 @@ CLEAN = $(CXX_OBJS_WIN32_COMPAT) $(TARGET)
 
 CXX = g++
 CXXFLAGS = -g -I include -Wall -Wno-missing-braces -Wconversion -pedantic \
-			-std=c++17
+			-std=c++17 -D DEBUG
 
 all: $(TARGET)
 	echo Build complete!

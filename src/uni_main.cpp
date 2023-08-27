@@ -16,14 +16,20 @@ int main(int argc, char** argv) {
     std::unique_ptr<uni::Window> window;
     gmtl::Vec2i window_center;
 
-    udbg << "Initializing...\n";
+    #ifdef DEBUG
+        udbg << "Initializing...\n";
+    #endif 
     if(SDL_Init(SDL_INIT_EVERYTHING)) {
         uerr << "Failed to initialize SDL...\n";
         goto fail;
     }
-    udbg << "Initalization success!\n";
+    #ifdef DEBUG
+        udbg << "Initalization success!\n";
+    #endif
 
-    unl; udbg << "Creating window...\n";
+    #ifdef DEBUG
+        unl; udbg << "Creating window...\n";
+    #endif
     try {
         window = std::make_unique<uni::Window>(512, 512, "Testing...");
     } catch(uni::error e) {
@@ -40,13 +46,17 @@ int main(int argc, char** argv) {
 
         goto fail;
     }
-    udbg << "Window creation success!\n";
+    #ifdef DEBUG
+        udbg << "Window creation success!\n";
+    #endif
 
     window_center = gmtl::Vec2i(
         window->get_scl_width() / 2, window->get_scl_height() / 2
     );
 
-    unl; udbg << "Entering main loop...\n";
+    #ifdef DEBUG
+        unl; udbg << "Entering main loop...\n";
+    #endif
     while(true) {
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFDD33FF));
         SDL_RenderClear(window->render());
@@ -82,6 +92,8 @@ int main(int argc, char** argv) {
 fail:
     error_code = -1;
 close:
-    unl; udbg << "Closing (code " << error_code << ")...\n";
+    #ifdef DEBUG
+        unl; udbg << "Closing (code " << error_code << ")...\n";
+    #endif
     return error_code;
 }
