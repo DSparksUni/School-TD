@@ -1,7 +1,7 @@
 # School TD
 
-    A tower defense game written just in c++. No fancy game engines or gpu
-programming, just simple SDL2 and math.
+        A tower defense game written just in c++. No fancy game engines or gpu
+    programming, just simple SDL2 and math.
 
 ## Credits
 
