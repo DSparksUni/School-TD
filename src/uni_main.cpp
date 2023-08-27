@@ -5,7 +5,7 @@
 #include "SDL/SDL.h"
 #include "SDL_gfx/SDL2_gfxPrimitives.h"
 
-#include "gmtl/Vec.h"
+#include "maths/vec.h"
 
 #include "uni_util.hpp"
 #include "uni_window.hpp"
@@ -14,13 +14,14 @@
 int main(int argc, char** argv) {
     int error_code = 0;
     std::unique_ptr<uni::Window> window;
-    gmtl::Vec2i window_center;
+    vec2i window_center;
 
     #ifdef DEBUG
         udbg << "Initializing...\n";
     #endif 
     if(SDL_Init(SDL_INIT_EVERYTHING)) {
         uerr << "Failed to initialize SDL...\n";
+        uinf << SDL_GetError() << '\n';
         goto fail;
     }
     #ifdef DEBUG
@@ -35,13 +36,15 @@ int main(int argc, char** argv) {
     } catch(uni::error e) {
         switch(e) {
         case uni::error::SDL_WINDOW_CREATION_ERROR: {
-            std::cout << "[ERROR] Failed to create SDL window...\n";
+            uerr << "Failed to create SDL window...\n";
+            uinf << SDL_GetError() << '\n';
         } break;
         case uni::error::SDL_RENDERER_CREATION_ERROR: {
-            std::cout << "[ERROR] Failed to create SDL renderer...\n";
+            uerr << "Failed to create SDL renderer...\n";
+            uinf << SDL_GetError() << '\n';
         } break;
         default:
-            std::cout << "[ERROR] Unknown error occurred while creating window...\n";
+            uerr << "Unknown error occurred while creating window...\n";
         }
 
         goto fail;
@@ -50,7 +53,7 @@ int main(int argc, char** argv) {
         udbg << "Window creation success!\n";
     #endif
 
-    window_center = gmtl::Vec2i(
+    window_center = vec2i(
         window->get_scl_width() / 2, window->get_scl_height() / 2
     );
 
@@ -73,7 +76,7 @@ int main(int argc, char** argv) {
         );
 
         uni::circle center = window->map_circle(
-            window_center[0], window_center[1], 25
+            window_center.x, window_center.y, 25
         );
         filledCircleColor(
             window->render(), UNI_UNPACK_CIRCLE(center),
