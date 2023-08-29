@@ -7,11 +7,11 @@ LDIR = lib
 vpath %.cpp $(SDIR)
 vpath %.h $(IDIR)
 
-__CXX_OBJS = uni_main.o uni_window.o uni_render.o
+__CXX_OBJS = uni_main.o uni_window.o uni_render.o uni_util.o
 CXX_OBJS = $(patsubst %.o,$(ODIR)/%.o,$(__CXX_OBJS))
 CXX_OBJS_WIN32_COMPAT = $(subst /,\,$(CXX_OBJS))
 
-LIBS = -L $(LDIR) -lSDL2main -lSDL2 -lSDL2_gfx
+LIBS = -L $(LDIR) -lSDL2main -lSDL2 -lSDL2_gfx -lSDL2_image
 
 CLEAN = $(CXX_OBJS_WIN32_COMPAT) $(TARGET)
 

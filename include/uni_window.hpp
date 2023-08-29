@@ -10,10 +10,10 @@
 namespace uni {
     class Window {
     private:
-        uint32_t width, scl_width, height, scl_height;
+        uint32_t m_width, m_scl_width, m_height, m_scl_height;
 
-        SDL_Window* win;
-        SDL_Renderer* renderer;
+        SDL_Window* m_window;
+        SDL_Renderer* m_render;
     
         nodiscard uint32_t map_to_value(
             uint32_t old_ceil, uint32_t new_ceil, uint32_t val
@@ -22,12 +22,13 @@ namespace uni {
         Window(uint32_t w, uint32_t h, const char* t);
         ~Window();
 
-        nodiscard uint32_t get_width() const noexcept;
-        nodiscard uint32_t get_scl_width() const noexcept;
-        nodiscard uint32_t get_height() const noexcept;
-        nodiscard uint32_t get_scl_height() const noexcept;
+        nodiscard uint32_t width() const noexcept;
+        nodiscard uint32_t scl_width() const noexcept;
+        nodiscard uint32_t height() const noexcept;
+        nodiscard uint32_t scl_height() const noexcept;
 
         nodiscard SDL_Window* window() const noexcept;
+        nodiscard SDL_Surface* surface() const noexcept;
         nodiscard SDL_Renderer* render() const noexcept;
 
         nodiscard uint32_t map_to_width(uint32_t x) const noexcept;

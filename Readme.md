@@ -5,6 +5,5 @@ programming, just simple SDL2 and math.
 
 ## Credits
 
-- [SDL2](https://github.com/libsdl-org/SDL) is being used for graphics, along with the extension [SDL2_gfx](https://github.com/RobLoach/sdl2_gfx)
+- [SDL2](https://github.com/libsdl-org/SDL) is being used for graphics, along with the extensions [SDL2_gfx](https://github.com/RobLoach/sdl2_gfx) and [SDL_image](https://github.com/libsdl-org/SDL_image)
 - Polymonster's [maths](https://github.com/polymonster/maths) library is being used for linear algebra
-- [stb_image](https://github.com/nothings/stb) is being used for asset loading

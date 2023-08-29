@@ -2,6 +2,9 @@
 #define UNI_UTIL_HPP_INCLUDED_
 
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
 
 #define uerr std::cerr << "[ERROR] "
 #define udbg std::cerr << "[DEBUG] "
@@ -18,6 +21,7 @@ namespace uni {
     enum error {
         SUCCESS = 0,
         SDL_WINDOW_CREATION_ERROR,
+        SDL_WINDOW_SURFACE_CREATION_ERROR,
         SDL_RENDERER_CREATION_ERROR,
         ERROR_COUNT
     };
@@ -25,6 +29,8 @@ namespace uni {
     struct circle {
         short int x, y, r;
     };
+
+    nodiscard std::string&& read_file(std::string_view) noexcept;
 }
 
 #endif  //UNI_UTIL_HPP_INCLUDED_

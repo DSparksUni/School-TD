@@ -4,17 +4,20 @@
 #define SDL_MAIN_HANDLED
 #include "SDL/SDL.h"
 #include "SDL_gfx/SDL2_gfxPrimitives.h"
-
+#include "SDL/SDL_image.h"
 #include "maths/vec.h"
 
 #include "uni_util.hpp"
 #include "uni_window.hpp"
 #include "uni_render.hpp"
 
+static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 512;
+static constexpr uint32_t DEFAULT_WINDOW_WIDTH = DEFAULT_WINDOW_HEIGHT * 16 / 9;
+
 int main(int argc, char** argv) {
     int error_code = 0;
     std::unique_ptr<uni::Window> window;
-    vec2i window_center;
+    SDL_Texture* test_lvl;
 
     #ifdef DEBUG
         udbg << "Initializing...\n";
@@ -22,6 +25,12 @@ int main(int argc, char** argv) {
     if(SDL_Init(SDL_INIT_EVERYTHING)) {
         uerr << "Failed to initialize SDL...\n";
         uinf << SDL_GetError() << '\n';
+        goto fail;
+    }
+
+    if(!IMG_Init(IMG_INIT_PNG)) {
+        uerr << "Failed to initialize SDL_image...\n";
+        uinf << IMG_GetError() << '\n';
         goto fail;
     }
     #ifdef DEBUG
@@ -32,7 +41,9 @@ int main(int argc, char** argv) {
         unl; udbg << "Creating window...\n";
     #endif
     try {
-        window = std::make_unique<uni::Window>(512, 512, "Testing...");
+        window = std::make_unique<uni::Window>(
+            DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "Testing..."
+        );
     } catch(uni::error e) {
         switch(e) {
         case uni::error::SDL_WINDOW_CREATION_ERROR: {
@@ -53,9 +64,16 @@ int main(int argc, char** argv) {
         udbg << "Window creation success!\n";
     #endif
 
-    window_center = vec2i(
-        window->get_scl_width() / 2, window->get_scl_height() / 2
-    );
+    if(argc < 2) {
+        uerr << "Level data must be supplied...\n";
+        goto fail;
+    }
+    test_lvl = IMG_LoadTexture(window->render(), argv[1]);
+    if(!test_lvl) {
+        uerr << "Failed to load texture from level image...\n";
+        uinf << IMG_GetError() << '\n';
+        goto fail;
+    }
 
     #ifdef DEBUG
         unl; udbg << "Entering main loop...\n";
@@ -63,25 +81,8 @@ int main(int argc, char** argv) {
     while(true) {
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFDD33FF));
         SDL_RenderClear(window->render());
-        
-        uni::render_fill_rect(
-            window->render(), window->map_rect(25, 50, 250, 250),
-            0x2264FFFF
-        );
 
-        uni::circle test_circle = window->map_circle(250, 300, 100);
-        filledCircleColor(
-            window->render(), UNI_UNPACK_CIRCLE(test_circle),
-            0xFF3300FF
-        );
-
-        uni::circle center = window->map_circle(
-            window_center.x, window_center.y, 25
-        );
-        filledCircleColor(
-            window->render(), UNI_UNPACK_CIRCLE(center),
-            0x55B72FFF
-        );
+        SDL_RenderCopy(window->render(), test_lvl, NULL, NULL);
 
         SDL_Event event;
         while(SDL_PollEvent(&event)) switch(event.type) {
