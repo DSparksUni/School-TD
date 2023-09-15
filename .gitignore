@@ -1,4 +1,6 @@
 obj
+art
+.vscode
 uni.exe
 *.c
 *.txt
