@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #define SDL_MAIN_HANDLED
 #include "SDL/SDL.h"
@@ -10,6 +11,7 @@
 #include "uni_util.hpp"
 #include "uni_window.hpp"
 #include "uni_render.hpp"
+#include "uni_enemy.hpp"
 
 static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 512;
 static constexpr uint32_t DEFAULT_WINDOW_WIDTH = DEFAULT_WINDOW_HEIGHT * 16 / 9;
@@ -18,6 +20,14 @@ int main(int argc, char** argv) {
     int error_code = 0;
     std::unique_ptr<uni::Window> window;
     SDL_Texture* test_lvl;
+    std::vector<vec2i> test_lvl_points;
+    std::unique_ptr<uni::Enemy> test_enemy;
+    uint64_t time_now = SDL_GetPerformanceCounter();
+    uint64_t time_last = 0;
+    double delta_time = 0.0;
+    size_t point_idx = 0;
+    bool pause = false;
+    bool pause_button = false;
 
     #ifdef DEBUG
         udbg << "Initializing...\n";
@@ -75,19 +85,115 @@ int main(int argc, char** argv) {
         goto fail;
     }
 
+    test_lvl_points = {
+        {4, 93},
+        {27, 91},
+        {52, 91},
+        {85, 91},
+        {112, 91},
+        {146, 95},
+        {177, 97},
+        {207, 94},
+        {244, 93},
+        {288, 91},
+        {330, 90},
+        {366, 87},
+        {398, 93},
+        {440, 94},
+        {485, 94},
+        {506, 95},
+        {545, 93},
+        {588, 89},
+        {617, 80},
+        {642, 87},
+        {672, 103},
+        {698, 117},
+        {712, 128},
+        {721, 143},
+        {721, 158},
+        {720, 182},
+        {716, 219},
+        {707, 243},
+        {700, 259},
+        {694, 293},
+        {700, 325},
+        {711, 337},
+        {724, 351},
+        {729, 373},
+        {731, 393},
+        {731, 416},
+        {722, 431},
+        {693, 443},
+        {659, 445},
+        {627, 442},
+        {597, 445},
+        {561, 444},
+        {525, 444},
+        {507, 443},
+        {468, 441},
+        {427, 437},
+        {379, 431},
+        {344, 428},
+        {292, 425},
+        {250, 428},
+        {190, 428},
+        {118, 417},
+        {68, 419},
+        {5, 415}
+    };
+
+    test_enemy = std::make_unique<uni::Enemy>(0, 93, test_lvl_points);
+
     #ifdef DEBUG
         unl; udbg << "Entering main loop...\n";
     #endif
     while(true) {
+        // Calculate delta time
+        time_last = time_now;
+        time_now = SDL_GetPerformanceCounter();
+        delta_time = (double)(
+            (double)(time_now - time_last) * 1000. /
+            (double)SDL_GetPerformanceFrequency()
+        ) * 0.05;
+
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFDD33FF));
         SDL_RenderClear(window->render());
 
         SDL_RenderCopy(window->render(), test_lvl, NULL, NULL);
 
+        test_enemy->draw(window);
+
+        if(pause) {
+            SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0xA5);
+            SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
+            SDL_Rect alpha_block = {
+                0, 0, (window->width() >= 0)?
+                    window->width() : window->width() * -1,
+                (window->height() >= 0)?
+                    window->height() : window->height() * -1
+            };
+            SDL_RenderFillRect(window->render(), &alpha_block);
+        }
+
+        // Process Events
+        SDL_PumpEvents();
         SDL_Event event;
         while(SDL_PollEvent(&event)) switch(event.type) {
             case SDL_QUIT: goto close;
             case SDL_WINDOWEVENT: window->window_event(event); break;
+        }
+
+        // Handle keyboard input
+        auto key_state = SDL_GetKeyboardState(NULL);
+        if(key_state[SDL_SCANCODE_SPACE] && !pause_button) {
+            pause = !pause;
+            pause_button = true;
+        } else if(!key_state[SDL_SCANCODE_SPACE] && pause_button)
+            pause_button = false;
+        
+        // Update sprites and display
+        if(!pause) {
+            test_enemy->update(delta_time);
         }
 
         SDL_RenderPresent(window->render());

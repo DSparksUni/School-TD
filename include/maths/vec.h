@@ -5,7 +5,11 @@
 
 #pragma once
 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wfloat-conversion"
 
 #include "util.h"
 
@@ -1323,3 +1327,5 @@ typedef Vec4i   vec4i;
 typedef Vec4f   float4;
 typedef Vec3f   float3;
 typedef Vec2f   float2;
+
+#pragma GCC diagnostic pop

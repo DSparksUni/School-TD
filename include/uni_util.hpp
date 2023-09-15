@@ -5,6 +5,10 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <cmath>
+
+#include "maths/vec.h"
 
 #define uerr std::cerr << "[ERROR] "
 #define udbg std::cerr << "[DEBUG] "
@@ -30,7 +34,10 @@ namespace uni {
         short int x, y, r;
     };
 
-    nodiscard std::string&& read_file(std::string_view) noexcept;
+    double distance(double, double, double, double) noexcept;
+    double distance(vec2d, vec2d) noexcept;
+    double distance(vec2d, double, double) noexcept;
+    double distance(double, double, vec2d) noexcept;
 }
 
-#endif  //UNI_UTIL_HPP_INCLUDED_
+#endif  //UNI_U TIL_HPP_INCLUDED_
