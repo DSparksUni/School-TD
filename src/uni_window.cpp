@@ -73,6 +73,10 @@ namespace uni {
         };
     }
 
+    nodiscard SDL_Rect Window::map_rect(SDL_Rect rect) const noexcept {
+        return this->map_rect(rect.x, rect.y, rect.w, rect.h);
+    }
+
     nodiscard circle Window::map_circle(
         uint32_t x, uint32_t y, uint32_t r
     ) const noexcept {

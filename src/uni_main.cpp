@@ -12,6 +12,7 @@
 #include "uni_window.hpp"
 #include "uni_render.hpp"
 #include "uni_enemy.hpp"
+#include "uni_button.hpp"
 
 static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 512;
 static constexpr uint32_t DEFAULT_WINDOW_WIDTH = DEFAULT_WINDOW_HEIGHT * 16 / 9;
@@ -20,12 +21,14 @@ int main(int argc, char** argv) {
     int error_code = 0;
     std::unique_ptr<uni::Window> window;
     SDL_Texture* test_lvl;
+    uni::PrimitiveButton test_button(
+        DEFAULT_WINDOW_WIDTH / 2, DEFAULT_WINDOW_HEIGHT / 2, 100, 50
+    );
     std::vector<vec2i> test_lvl_points;
     std::unique_ptr<uni::Enemy> test_enemy;
     uint64_t time_now = SDL_GetPerformanceCounter();
     uint64_t time_last = 0;
     double delta_time = 0.0;
-    size_t point_idx = 0;
     bool pause = false;
     bool pause_button = false;
 
@@ -173,6 +176,8 @@ int main(int argc, char** argv) {
                     window->height() : window->height() * -1
             };
             SDL_RenderFillRect(window->render(), &alpha_block);
+
+            test_button.draw(window);
         }
 
         // Process Events
@@ -190,6 +195,12 @@ int main(int argc, char** argv) {
             pause_button = true;
         } else if(!key_state[SDL_SCANCODE_SPACE] && pause_button)
             pause_button = false;
+
+        int mouse_x, mouse_y;
+        auto mouse_state = SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
+        if((mouse_state & SDL_BUTTON(1)) && pause) {
+            if(test_button.click(vec2i(mouse_x, mouse_y))) pause = false;
+        }
         
         // Update sprites and display
         if(!pause) {
@@ -205,5 +216,6 @@ close:
     #ifdef DEBUG
         unl; udbg << "Closing (code " << error_code << ")...\n";
     #endif
+    SDL_DestroyTexture(test_lvl);
     return error_code;
 }

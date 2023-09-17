@@ -37,6 +37,7 @@ namespace uni {
         nodiscard SDL_Rect map_rect(
             uint32_t x, uint32_t y, uint32_t w, uint32_t h
         ) const noexcept;
+        nodiscard SDL_Rect map_rect(SDL_Rect rect) const noexcept;
         nodiscard circle map_circle(
             uint32_t x, uint32_t y, uint32_t r
         ) const noexcept;
