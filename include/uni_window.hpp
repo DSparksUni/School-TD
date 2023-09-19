@@ -41,6 +41,11 @@ namespace uni {
         nodiscard circle map_circle(
             uint32_t x, uint32_t y, uint32_t r
         ) const noexcept;
+        nodiscard vec2i map_point(vec2i point) const noexcept;
+        nodiscard vec2i map_point(int x, int y) const noexcept;
+
+        nodiscard vec2i backwards_map_point(vec2i point) const noexcept;
+        nodiscard vec2i backwards_map_point(int x, int y) const noexcept;
 
         void window_event(SDL_Event e) noexcept;
     };

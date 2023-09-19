@@ -87,6 +87,28 @@ namespace uni {
         };
     }
 
+    nodiscard vec2i Window::map_point(vec2i point) const noexcept {
+        return vec2i{
+            static_cast<int>(this->map_to_width(point.x)),
+            static_cast<int>(this->map_to_height(point.y))
+        };
+    }
+
+    nodiscard vec2i Window::map_point(int x, int y) const noexcept {
+        return this->map_point(vec2i{x, y});
+    }
+
+    nodiscard vec2i Window::backwards_map_point(vec2i point) const noexcept {
+        return vec2i {
+            this->map_to_value(this->m_width, this->m_scl_width, point.x),
+            this->map_to_value(this->m_height, this->m_scl_height, point.y)
+        };
+    }
+
+    nodiscard vec2i Window::backwards_map_point(int x, int y) const noexcept {
+        return this->backwards_map_point(vec2i{x, y});
+    }
+
     void Window::window_event(SDL_Event e) noexcept {
         switch(e.window.event) {
         case SDL_WINDOWEVENT_SIZE_CHANGED: {

@@ -8,12 +8,11 @@ namespace uni {
         Button(SDL_Rect{x, y, w, h}) {}
 
     bool Button::click(vec2i mouse_pos) const noexcept {
-        return maths::point_inside_aabb(
-            vec2i(this->m_border.x, this->m_border.y),
-            vec2i(
-                this->m_border.x + this->m_border.w,
-                this->m_border.y + this->m_border.h
-            ), mouse_pos
+        return (
+            mouse_pos.x >= this->m_border.x &&
+            mouse_pos.x <= this->m_border.x + this->m_border.w &&
+            mouse_pos.y >= this->m_border.y &&
+            mouse_pos.y <= this->m_border.y + this->m_border.y
         );
     }
 
@@ -66,6 +65,6 @@ namespace uni {
     }
 
     void ImageButton::draw(std::unique_ptr<Window>& window) const noexcept {
-        SDL_RenderCopy(window->render(), this->m_image, NULL, NULL);
+        SDL_RenderCopy(window->render(), this->m_image, NULL, &this->m_border);
     }
 }

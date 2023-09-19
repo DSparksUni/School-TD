@@ -197,9 +197,11 @@ int main(int argc, char** argv) {
             pause_button = false;
 
         int mouse_x, mouse_y;
-        auto mouse_state = SDL_GetGlobalMouseState(&mouse_x, &mouse_y);
+        auto mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
         if((mouse_state & SDL_BUTTON(1)) && pause) {
-            if(test_button.click(vec2i(mouse_x, mouse_y))) pause = false;
+            if(test_button.click(
+                window->backwards_map_point(mouse_x, mouse_y)
+            )) pause = false;
         }
         
         // Update sprites and display
