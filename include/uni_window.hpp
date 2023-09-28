@@ -14,7 +14,7 @@ namespace uni {
 
         SDL_Window* m_window;
         SDL_Renderer* m_render;
-    
+
         nodiscard uint32_t map_to_value(
             uint32_t old_ceil, uint32_t new_ceil, uint32_t val
         ) const noexcept;
@@ -41,6 +41,7 @@ namespace uni {
         nodiscard circle map_circle(
             uint32_t x, uint32_t y, uint32_t r
         ) const noexcept;
+        nodiscard circle map_circle(circle c) const noexcept;
         nodiscard vec2i map_point(vec2i point) const noexcept;
         nodiscard vec2i map_point(int x, int y) const noexcept;
 

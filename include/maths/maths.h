@@ -4,6 +4,12 @@
 
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wfloat-conversion"
+
 #include "mat.h"
 #include "quat.h"
 #include "util.h"
@@ -1979,3 +1985,5 @@ namespace maths
         return false;
     }
 } // namespace maths
+
+#pragma GCC diagnostic pop

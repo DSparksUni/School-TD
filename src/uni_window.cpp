@@ -69,7 +69,7 @@ namespace uni {
             static_cast<int>(this->map_to_width(x)),
             static_cast<int>(this->map_to_height(y)),
             static_cast<int>(this->map_to_width(w)),
-            static_cast<int>(this->map_to_height(h))  
+            static_cast<int>(this->map_to_height(h))
         };
     }
 
@@ -83,8 +83,12 @@ namespace uni {
         return circle {
             static_cast<short int>(this->map_to_width(x)),
             static_cast<short int>(this->map_to_height(y)),
-            static_cast<short int>(this->intr_map(r))  
+            static_cast<short int>(this->intr_map(r))
         };
+    }
+
+    nodiscard circle Window::map_circle(circle c) const noexcept {
+      return this->map_circle(UNI_UNPACK_CIRCLE(c));
     }
 
     nodiscard vec2i Window::map_point(vec2i point) const noexcept {
@@ -100,8 +104,14 @@ namespace uni {
 
     nodiscard vec2i Window::backwards_map_point(vec2i point) const noexcept {
         return vec2i {
-            this->map_to_value(this->m_width, this->m_scl_width, point.x),
-            this->map_to_value(this->m_height, this->m_scl_height, point.y)
+            this->map_to_value(
+                this->m_width, this->m_scl_width,
+                static_cast<uint32_t>(point.x)
+            ),
+            this->map_to_value(
+                this->m_height, this->m_scl_height,
+                static_cast<uint32_t>(point.y)
+            )
         };
     }
 

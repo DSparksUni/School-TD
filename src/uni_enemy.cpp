@@ -1,19 +1,24 @@
 #include "uni_enemy.hpp"
 
 namespace uni {
-    Enemy::Enemy(vec2i pos, const std::vector<vec2i>& path):
-        m_pos(static_cast<vec2f>(pos)), m_vel(vec2f::zero()),
+    Enemy::Enemy(
+        vec2i pos, const std::vector<vec2i>& path,
+        const char* img_path, SDL_Renderer* render
+    ):  m_pos(static_cast<vec2f>(pos)), m_vel(vec2f::zero()),
         m_path(path), m_path_idx(-1),
         m_target(vec2i::zero()), m_last(vec2i::zero())
     {
+        this->m_image = IMG_LoadTexture(render, img_path);
+        if(!this->m_image) throw error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
+
         this->advance();
     }
-    Enemy::Enemy(int x, int y, const std::vector<vec2i>& path):
-        m_pos(static_cast<float>(x), static_cast<float>(y)),
-        m_vel(vec2f::zero()), m_path(path), m_path_idx(-1),
-        m_target(vec2i::zero()), m_last(vec2i::zero())
-    {
-        this->advance();
+    Enemy::Enemy(
+        int x, int y, const std::vector<vec2i>& path,
+        const char* img_path, SDL_Renderer* render
+    ): Enemy(vec2i{x, y}, path, img_path, render) {}
+    Enemy::~Enemy() {
+        SDL_DestroyTexture(this->m_image);
     }
 
     void Enemy::set_direction() noexcept {
@@ -57,8 +62,7 @@ namespace uni {
             static_cast<uint32_t>(this->m_pos.y + 0.5f),
             this->c_width, this->c_height
         );
-        SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(this->c_color));
-        SDL_RenderFillRect(window->render(), &rect);
+        SDL_RenderCopy(window->render(), this->m_image, NULL, &rect);
     }
 
     void Enemy::update(double dt) noexcept {

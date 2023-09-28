@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "SDL/SDL.h"
+#include "SDL/SDL_image.h"
 #include "maths/vec.h"
 
 #include "uni_util.hpp"
@@ -18,6 +19,7 @@ namespace uni {
         int m_path_idx;
         vec2i m_target;
         vec2i m_last;
+        SDL_Texture* m_image;
 
         const float c_speed = 0.5f;
         const uint32_t c_width = 25;
@@ -30,9 +32,15 @@ namespace uni {
         void advance() noexcept;
 
     public:
-
-        Enemy(vec2i pos, const std::vector<vec2i>& path);
-        Enemy(int x, int y, const std::vector<vec2i>& path);
+        Enemy(
+            vec2i pos, const std::vector<vec2i>& path,
+            const char* img_path, SDL_Renderer* render
+        );
+        Enemy(
+            int x, int y, const std::vector<vec2i>& path,
+            const char* img_path, SDL_Renderer* render
+        );
+        ~Enemy();
 
         nodiscard vec2i pos() const noexcept;
         nodiscard float speed() const noexcept;

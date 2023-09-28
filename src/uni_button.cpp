@@ -2,7 +2,7 @@
 
 namespace uni {
     Button::Button(SDL_Rect rect): m_border(rect), m_body(SDL_Rect{
-        rect.x + 5, rect.y + 5, rect.w - 10, rect.h - 10    
+        rect.x + 5, rect.y + 5, rect.w - 10, rect.h - 10
     }) {}
     Button::Button(int x, int y, int w, int h):
         Button(SDL_Rect{x, y, w, h}) {}

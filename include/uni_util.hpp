@@ -8,12 +8,17 @@
 #include <vector>
 #include <cmath>
 
+#include "SDL/SDL.h"
+#include "SDL_ttf/SDL_ttf.h"
 #include "maths/vec.h"
 
 #define uerr std::cerr << "[ERROR] "
-#define udbg std::cerr << "[DEBUG] "
 #define uinf std::cerr << "[INFO] "
 #define unl std::cerr << '\n'
+
+#ifdef DEBUG
+#define udbg std::cerr << "[DEBUG] "
+#endif  
 
 #define nodiscard [[nodiscard]]
 

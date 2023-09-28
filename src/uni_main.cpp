@@ -13,19 +13,22 @@
 #include "uni_render.hpp"
 #include "uni_enemy.hpp"
 #include "uni_button.hpp"
+#include "uni_tower.hpp"
 
-static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 512;
-static constexpr uint32_t DEFAULT_WINDOW_WIDTH = DEFAULT_WINDOW_HEIGHT * 16 / 9;
+static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 910;
+static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = DEFAULT_WINDOW_WIDTH * 9 / 16;
 
 int main(int argc, char** argv) {
     int error_code = 0;
     std::unique_ptr<uni::Window> window;
     SDL_Texture* test_lvl;
     uni::PrimitiveButton test_button(
-        DEFAULT_WINDOW_WIDTH / 2, DEFAULT_WINDOW_HEIGHT / 2, 100, 50
+        DEFAULT_WINDOW_WIDTH / 2 - 50, DEFAULT_WINDOW_HEIGHT / 2 - 25,
+        100, 50
     );
     std::vector<vec2i> test_lvl_points;
     std::unique_ptr<uni::Enemy> test_enemy;
+    std::unique_ptr<uni::TestTower> test_tower;
     uint64_t time_now = SDL_GetPerformanceCounter();
     uint64_t time_last = 0;
     double delta_time = 0.0;
@@ -89,63 +92,31 @@ int main(int argc, char** argv) {
     }
 
     test_lvl_points = {
-        {4, 93},
-        {27, 91},
-        {52, 91},
-        {85, 91},
-        {112, 91},
-        {146, 95},
-        {177, 97},
-        {207, 94},
-        {244, 93},
-        {288, 91},
-        {330, 90},
-        {366, 87},
-        {398, 93},
-        {440, 94},
-        {485, 94},
-        {506, 95},
-        {545, 93},
-        {588, 89},
-        {617, 80},
-        {642, 87},
-        {672, 103},
-        {698, 117},
-        {712, 128},
-        {721, 143},
-        {721, 158},
-        {720, 182},
-        {716, 219},
-        {707, 243},
-        {700, 259},
-        {694, 293},
-        {700, 325},
-        {711, 337},
-        {724, 351},
-        {729, 373},
-        {731, 393},
-        {731, 416},
-        {722, 431},
-        {693, 443},
-        {659, 445},
-        {627, 442},
-        {597, 445},
-        {561, 444},
-        {525, 444},
-        {507, 443},
-        {468, 441},
-        {427, 437},
-        {379, 431},
-        {344, 428},
-        {292, 425},
-        {250, 428},
-        {190, 428},
-        {118, 417},
-        {68, 419},
-        {5, 415}
+        {4, 93},    {27, 91},   {52, 91},
+        {85, 91},   {112, 91},  {146, 95},
+        {177, 97},  {207, 94},  {244, 93},
+        {288, 91},  {330, 90},  {366, 87},
+        {398, 93},  {440, 94},  {485, 94},
+        {506, 95},  {545, 93},  {588, 89},
+        {617, 80},  {642, 87},  {672, 103},
+        {698, 117}, {712, 128}, {721, 143},
+        {721, 158}, {720, 182}, {716, 219},
+        {707, 243}, {700, 259}, {694, 293},
+        {700, 325}, {711, 337}, {724, 351},
+        {729, 373}, {731, 393}, {731, 416},
+        {722, 431}, {693, 443}, {659, 445},
+        {627, 442}, {597, 445}, {561, 444},
+        {525, 444}, {507, 443}, {468, 441},
+        {427, 437}, {379, 431}, {344, 428},
+        {292, 425}, {250, 428}, {190, 428},
+        {118, 417}, {68, 419},  {5, 415}
     };
 
-    test_enemy = std::make_unique<uni::Enemy>(0, 93, test_lvl_points);
+    test_enemy = std::make_unique<uni::Enemy>(
+        0, 93, test_lvl_points, "assets/bug-001.png", window->render()
+    );
+
+    test_tower = std::make_unique<uni::TestTower>(300, 256, 10);
 
     #ifdef DEBUG
         unl; udbg << "Entering main loop...\n";
@@ -165,15 +136,14 @@ int main(int argc, char** argv) {
         SDL_RenderCopy(window->render(), test_lvl, NULL, NULL);
 
         test_enemy->draw(window);
+        test_tower->draw(window);
 
         if(pause) {
             SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0xA5);
             SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
             SDL_Rect alpha_block = {
-                0, 0, (window->width() >= 0)?
-                    window->width() : window->width() * -1,
-                (window->height() >= 0)?
-                    window->height() : window->height() * -1
+                0, 0, static_cast<int>(window->width()),
+                static_cast<int>(window->height())
             };
             SDL_RenderFillRect(window->render(), &alpha_block);
 
@@ -207,6 +177,7 @@ int main(int argc, char** argv) {
         // Update sprites and display
         if(!pause) {
             test_enemy->update(delta_time);
+            test_tower->update(delta_time);
         }
 
         SDL_RenderPresent(window->render());
@@ -218,6 +189,7 @@ close:
     #ifdef DEBUG
         unl; udbg << "Closing (code " << error_code << ")...\n";
     #endif
-    SDL_DestroyTexture(test_lvl);
+    if(test_lvl) SDL_DestroyTexture(test_lvl);
+    SDL_Quit(); IMG_Quit();
     return error_code;
 }
