@@ -154,8 +154,7 @@ int main(int argc, char** argv) {
         ) * 0.05;
 
         mouse_listener->update();
-        key_listener->update();
-
+        
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFDD33FF));
         SDL_RenderClear(window->render());
 

@@ -4,14 +4,10 @@ namespace uni {
     std::shared_ptr<KeyboardListener> KeyboardListener::instance = nullptr;
     bool KeyboardListener::has_instance = false;
 
-    void KeyboardListener::update() noexcept {
+    KeyboardListener::KeyboardListener() {
         this->m_keyboard_state = const_cast<uint8_t*>(
             SDL_GetKeyboardState(&this->m_state_len)
         );
-    }
-
-    KeyboardListener::KeyboardListener() {
-        this->update();
     }
 
     std::shared_ptr<KeyboardListener> KeyboardListener::get() noexcept {

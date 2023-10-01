@@ -9,8 +9,6 @@
 
 namespace uni {
     class KeyboardListener {
-    public:
-        void update() noexcept;
     private:
         using self = KeyboardListener;
 
