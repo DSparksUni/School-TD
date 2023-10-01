@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
         auto render_pause_alpha = [test_button](
             std::unique_ptr<uni::Window>& window
         ) {
-            //Apply background fade
+            // Apply background fade
             SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0xA5);
             SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
             SDL_Rect alpha_block = {
@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
             };
             SDL_RenderFillRect(window->render(), &alpha_block);
 
-            //Draw the unpause button
+            // Draw the unpause button
             test_button.draw(window);
         };
 
