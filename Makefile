@@ -8,7 +8,7 @@ vpath %.cpp $(SDIR)
 vpath %.h $(IDIR)
 
 __CXX_OBJS = uni_main.o uni_window.o uni_render.o uni_enemy.o uni_util.o \
-				uni_button.o uni_tower.o
+			 uni_button.o uni_tower.o uni_mouse.o uni_keyboard.o
 CXX_OBJS = $(patsubst %.o,$(ODIR)/%.o,$(__CXX_OBJS))
 CXX_OBJS_WIN32_COMPAT = $(subst /,\,$(CXX_OBJS))
 
@@ -18,7 +18,7 @@ CLEAN = $(CXX_OBJS_WIN32_COMPAT) $(TARGET)
 
 CXX = g++
 CXXFLAGS = -g -I include -Wall -Wno-missing-braces -Wconversion -pedantic \
-			-std=c++17 -D DEBUG
+		   -std=c++17 -D DEBUG
 
 all: $(TARGET)
 	echo Build complete!

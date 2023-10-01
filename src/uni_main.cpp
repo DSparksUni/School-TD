@@ -14,6 +14,8 @@
 #include "uni_enemy.hpp"
 #include "uni_button.hpp"
 #include "uni_tower.hpp"
+#include "uni_mouse.hpp"
+#include "uni_keyboard.hpp"
 
 static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 910;
 static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = DEFAULT_WINDOW_WIDTH * 9 / 16;
@@ -26,6 +28,8 @@ int main(int argc, char** argv) {
         DEFAULT_WINDOW_WIDTH / 2 - 50, DEFAULT_WINDOW_HEIGHT / 2 - 25,
         100, 50
     );
+    std::shared_ptr<uni::MouseListener> mouse_listener;
+    std::shared_ptr<uni::KeyboardListener> key_listener;
     std::vector<vec2i> test_lvl_points;
     std::unique_ptr<uni::Enemy> test_enemy;
     std::unique_ptr<uni::TestTower> test_tower;
@@ -118,10 +122,29 @@ int main(int argc, char** argv) {
 
     test_tower = std::make_unique<uni::TestTower>(300, 256, 10);
 
+    mouse_listener = uni::MouseListener::get();
+    key_listener = uni::KeyboardListener::get();
+
     #ifdef DEBUG
         unl; udbg << "Entering main loop...\n";
     #endif
     while(true) {
+        auto render_pause_alpha = [test_button](
+            std::unique_ptr<uni::Window>& window
+        ) {
+            //Apply background fade
+            SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0xA5);
+            SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
+            SDL_Rect alpha_block = {
+                0, 0, static_cast<int>(window->width()),
+                static_cast<int>(window->height())
+            };
+            SDL_RenderFillRect(window->render(), &alpha_block);
+
+            //Draw the unpause button
+            test_button.draw(window);
+        };
+
         // Calculate delta time
         time_last = time_now;
         time_now = SDL_GetPerformanceCounter();
@@ -129,6 +152,9 @@ int main(int argc, char** argv) {
             (double)(time_now - time_last) * 1000. /
             (double)SDL_GetPerformanceFrequency()
         ) * 0.05;
+
+        mouse_listener->update();
+        key_listener->update();
 
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFDD33FF));
         SDL_RenderClear(window->render());
@@ -138,17 +164,7 @@ int main(int argc, char** argv) {
         test_enemy->draw(window);
         test_tower->draw(window);
 
-        if(pause) {
-            SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0xA5);
-            SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
-            SDL_Rect alpha_block = {
-                0, 0, static_cast<int>(window->width()),
-                static_cast<int>(window->height())
-            };
-            SDL_RenderFillRect(window->render(), &alpha_block);
-
-            test_button.draw(window);
-        }
+        if(pause) render_pause_alpha(window);
 
         // Process Events
         SDL_PumpEvents();
@@ -159,18 +175,15 @@ int main(int argc, char** argv) {
         }
 
         // Handle keyboard input
-        auto key_state = SDL_GetKeyboardState(NULL);
-        if(key_state[SDL_SCANCODE_SPACE] && !pause_button) {
+        bool space_down = key_listener->key_down(SDL_SCANCODE_SPACE);
+        if(space_down && !pause_button) {
             pause = !pause;
             pause_button = true;
-        } else if(!key_state[SDL_SCANCODE_SPACE] && pause_button)
-            pause_button = false;
+        } else if(!space_down && pause_button) pause_button = false;
 
-        int mouse_x, mouse_y;
-        auto mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-        if((mouse_state & SDL_BUTTON(1)) && pause) {
+        if(mouse_listener->get_mouse_button(1) && pause) {
             if(test_button.click(
-                window->backwards_map_point(mouse_x, mouse_y)
+                window->backwards_map_point(mouse_listener->get_mouse_pos())
             )) pause = false;
         }
         
