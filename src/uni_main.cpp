@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
             std::unique_ptr<uni::Window>& window
         ) {
             // Apply background fade
-            SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0xA5);
+            SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0x8A);
             SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
             SDL_Rect alpha_block = {
                 0, 0, static_cast<int>(window->width()),
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
         ) * 0.05;
 
         mouse_listener->update();
-        
+
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFDD33FF));
         SDL_RenderClear(window->render());
 
