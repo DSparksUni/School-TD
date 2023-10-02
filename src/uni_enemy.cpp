@@ -67,12 +67,14 @@ namespace uni {
 
     void Enemy::update(double dt) noexcept {
         this->set_direction();
-        this->m_pos += this->m_vel;
+        this->m_pos += static_cast<vec2f>(
+            static_cast<vec2d>(this->m_vel) * dt
+        );
 
         const double targ_dist = distance(
             static_cast<vec2d>(this->m_pos),
             static_cast<vec2d>(this->m_target)
         );
-        if(targ_dist < this->DISTANCE_THRESHOLD) this->advance();
+        if(targ_dist < this->DISTANCE_THRESHOLD * dt) this->advance();
     }
 }

@@ -24,6 +24,9 @@
 
 #define UNI_UNPACK_COLOR(c) (uint8_t)(c >> 24), (uint8_t)(c >> 16 & 0xFF), \
                             (uint8_t)(c >> 8 & 0xFF), (uint8_t)(c & 0xFF)
+#define __UNI_REVERSE_COLOR_IMPL(a, b, g, r) (r << 24) | (g << 16) | (b << 8) | a
+#define __UNI_REVERSE_COLOR(c) __UNI_REVERSE_COLOR_IMPL(c)
+#define UNI_REVERSE_COLOR(c) __UNI_REVERSE_COLOR(UNI_UNPACK_COLOR(c))
 #define UNI_UNPACK_CIRCLE(c) c.x, c.y, c.r
 
 namespace uni {

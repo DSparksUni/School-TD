@@ -7,6 +7,13 @@ namespace uni {
     Button::Button(int x, int y, int w, int h):
         Button(SDL_Rect{x, y, w, h}) {}
 
+    nodiscard SDL_Rect Button::rect() const noexcept {
+        return this->m_border;
+    }
+    nodiscard SDL_Rect Button::inner_rect() const noexcept {
+        return this->m_body;
+    }
+
     bool Button::click(vec2i mouse_pos) const noexcept {
         return (
             mouse_pos.x >= this->m_border.x &&
@@ -19,10 +26,11 @@ namespace uni {
 
     PrimitiveButton::PrimitiveButton(
         SDL_Rect rect, uint32_t border_color, uint32_t body_color
-    ): super(rect), m_border_color(border_color), m_body_color(body_color) {}
+    ): super(rect), m_border_color(UNI_REVERSE_COLOR(border_color)),
+       m_body_color(UNI_REVERSE_COLOR(body_color)) {}
 
     PrimitiveButton::PrimitiveButton(SDL_Rect rect):
-        PrimitiveButton(rect, 0xFFFFFFFF, 0xFFFF00FF) {}
+        PrimitiveButton(rect, 0xFFFFFFFF, 0xFF00FFFF) {}
 
     PrimitiveButton::PrimitiveButton(
         int x, int y, int w, int h,

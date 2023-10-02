@@ -24,6 +24,9 @@ namespace uni {
         Button(int x, int y, int w, int h);
         virtual ~Button() = default;
 
+        nodiscard SDL_Rect rect() const noexcept;
+        nodiscard SDL_Rect inner_rect() const noexcept;
+
         virtual void draw(std::unique_ptr<Window>& window) const noexcept = 0;
 
         bool click(vec2i mouse_pos) const noexcept;

@@ -202,6 +202,6 @@ close:
         unl; udbg << "Closing (code " << error_code << ")...\n";
     #endif
     if(test_lvl) SDL_DestroyTexture(test_lvl);
-    SDL_Quit(); IMG_Quit();
+    IMG_Quit(); SDL_Quit(); 
     return error_code;
 }
