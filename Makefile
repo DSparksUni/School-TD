@@ -13,7 +13,7 @@ __CXX_OBJS = uni_main.o uni_window.o uni_render.o uni_enemy.o uni_util.o \
 CXX_OBJS = $(patsubst %.o,$(ODIR)/%.o,$(__CXX_OBJS))
 CXX_OBJS_WIN32_COMPAT = $(subst /,\,$(CXX_OBJS))
 
-LIBS = -L $(LDIR) -lSDL2main -lSDL2 -lSDL2_gfx -lSDL2_image -lSDL2_ttf
+LIBS = -L $(LDIR) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
 
 CLEAN = $(CXX_OBJS_WIN32_COMPAT) $(TARGET)
 
