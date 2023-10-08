@@ -32,10 +32,14 @@
 namespace uni {
     enum error {
         SUCCESS = 0,
+        SDL_INIT_ERROR,
+        SDL_IMAGE_INIT_ERROR,
+        SDL_TTF_INIT_ERROR,
         SDL_WINDOW_CREATION_ERROR,
-        SDL_WINDOW_SURFACE_CREATION_ERROR,
         SDL_RENDERER_CREATION_ERROR,
         SDL_IMAGE_TEXTURE_CREATION_ERROR,
+        FONT_CREATION_ERROR,
+        FONT_RENDER_ERROR,      
         ERROR_COUNT
     };
 

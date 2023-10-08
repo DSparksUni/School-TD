@@ -4,4 +4,5 @@ art
 uni.exe
 *.c
 *.txt
+*.stackdump
 tools

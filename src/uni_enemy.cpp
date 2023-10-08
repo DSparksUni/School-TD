@@ -3,10 +3,13 @@
 namespace uni {
     Enemy::Enemy(
         vec2i pos, const std::vector<vec2i>& path,
-        const char* img_path, SDL_Renderer* render
+        const char* img_path, SDL_Renderer* render,
+        float speed, uint32_t width, uint32_t height,
+        uint32_t color
     ):  m_pos(static_cast<vec2f>(pos)), m_vel(vec2f::zero()),
-        m_path(path), m_path_idx(-1),
-        m_target(vec2i::zero()), m_last(vec2i::zero())
+        m_path(path), m_path_idx(-1), m_target(vec2i::zero()),
+        m_last(vec2i::zero()), c_speed(speed), c_width(width),
+        c_height(height), c_color(color)
     {
         this->m_image = IMG_LoadTexture(render, img_path);
         if(!this->m_image) throw error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
@@ -15,8 +18,10 @@ namespace uni {
     }
     Enemy::Enemy(
         int x, int y, const std::vector<vec2i>& path,
-        const char* img_path, SDL_Renderer* render
-    ): Enemy(vec2i{x, y}, path, img_path, render) {}
+        const char* img_path, SDL_Renderer* render,
+        float speed, uint32_t width, uint32_t height,
+        uint32_t color
+    ): Enemy(vec2i{x, y}, path, img_path, render, speed, width, height, color) {}
     Enemy::~Enemy() {
         SDL_DestroyTexture(this->m_image);
     }
@@ -56,6 +61,12 @@ namespace uni {
         return this->c_height;
     }
 
+    void Enemy::reset(vec2i pos) noexcept {
+        this->m_pos = pos;
+        this->m_path_idx = -1;
+        this->advance();
+    }
+
     void Enemy::draw(std::unique_ptr<Window>& window) const noexcept {
         SDL_Rect rect = window->map_rect(
             static_cast<uint32_t>(this->m_pos.x + 0.5f),
@@ -75,6 +86,18 @@ namespace uni {
             static_cast<vec2d>(this->m_pos),
             static_cast<vec2d>(this->m_target)
         );
-        if(targ_dist < this->DISTANCE_THRESHOLD * dt) this->advance();
+        if(targ_dist <= this->distance_threshold(dt)) this->advance();
+    }
+
+
+    Caterbug::Caterbug(
+        vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render
+    ): super(pos, path, "assets/bug-001.png", render, 2.f, 25, 25, 0xFFFF00FF) {}
+    Caterbug::Caterbug(
+        int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render
+    ): self(vec2i{x, y}, path, render) {}
+
+    double Caterbug::distance_threshold(double dt) const noexcept {
+        return powf(sqrtf(this->c_speed), 1.8f) * pow(dt, 3.0);
     }
 }
