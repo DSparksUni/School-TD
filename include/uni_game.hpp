@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "SDL/SDL.h"
-#include "SDL_gfx/SDL2_gfxPrimitives.h"
 #include "SDL/SDL_image.h"
 #include "SDL_ttf/SDL_ttf.h"
 

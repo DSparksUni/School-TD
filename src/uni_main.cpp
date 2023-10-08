@@ -2,9 +2,8 @@
 #include <memory>
 #include <vector>
 
-#define SDL_MAIN_HANDLED
 #include "SDL/SDL.h"
-#include "SDL_gfx/SDL2_gfxPrimitives.h"
+#include "SDL/SDL_main.h"
 #include "SDL/SDL_image.h"
 #include "SDL_ttf/SDL_ttf.h"
 #include "maths/vec.h"
@@ -150,12 +149,14 @@ void SchoolTD::draw_pause_screen() noexcept {
 void SchoolTD::draw_debug_points() const noexcept {
     for(const vec2i point : test_lvl_points) {
         uni::circle point_circle = window->map_circle(
-            point.x, point.y, 5
+            point.x, point.y, 10
         );
-        filledCircleColor(
-            window->render(), UNI_UNPACK_CIRCLE(point_circle),
-            0xFF3355BB
-        );
+        SDL_Rect point_rect = {
+            UNI_UNPACK_CIRCLE(point_circle), point_circle.r
+        };
+
+        SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xBB5533FF));
+        SDL_RenderFillRect(window->render(), &point_rect);
     }
 }
 

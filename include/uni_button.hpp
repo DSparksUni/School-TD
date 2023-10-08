@@ -6,7 +6,6 @@
 
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
-#include "SDL_gfx/SDL2_imageFilter.h"
 #include "maths/vec.h"
 #include "maths/maths.h"
 
