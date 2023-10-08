@@ -98,6 +98,6 @@ namespace uni {
     ): self(vec2i{x, y}, path, render) {}
 
     double Caterbug::distance_threshold(double dt) const noexcept {
-        return powf(sqrtf(this->c_speed), 1.8f) * pow(dt, 3.0);
+        return 3 * this->c_speed;
     }
 }
