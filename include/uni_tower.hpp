@@ -5,7 +5,6 @@
 
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
-#include "SDL_gfx/SDL2_gfxPrimitives.h"
 
 #include "uni_window.hpp"
 #include "uni_util.hpp"
@@ -20,6 +19,7 @@ namespace uni {
     public:
         Tower(SDL_Rect rect);
         Tower(int x, int y, int w, int h);
+        virtual ~Tower() = default;
 
         virtual void draw(std::unique_ptr<Window>& window) const noexcept = 0;
         virtual void update(double dt) noexcept = 0;
@@ -34,6 +34,7 @@ namespace uni {
     public:
         TestTower(circle c);
         TestTower(int x, int y, int r);
+        virtual ~TestTower() = default;
 
         virtual void draw(
             std::unique_ptr<Window>& window

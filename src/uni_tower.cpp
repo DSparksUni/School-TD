@@ -16,10 +16,13 @@ namespace uni {
       circle mapped_circle = window->map_circle(
         this->m_rect.x, this->m_rect.y, this->m_rect.w
       );
+      SDL_Rect mapped_rect = {
+        UNI_UNPACK_CIRCLE(mapped_circle), mapped_circle.r
+      };
 
-      filledCircleColor(
-        window->render(), UNI_UNPACK_CIRCLE(mapped_circle), 0xFF00FFFF
-      );
+      
+      SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFFF00FF));
+      SDL_RenderFillRect(window->render(), &mapped_rect);
     }
 
     void TestTower::update(double dt) noexcept {
