@@ -73,6 +73,7 @@ namespace uni {
     }
 
     void ImageButton::draw(std::unique_ptr<Window>& window) const noexcept {
-        SDL_RenderCopy(window->render(), this->m_image, NULL, &this->m_border);
+        const SDL_Rect border_rect = window->map_rect(this->m_border);
+        SDL_RenderCopy(window->render(), this->m_image, NULL, &border_rect);
     }
 }

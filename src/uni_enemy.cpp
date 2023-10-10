@@ -92,7 +92,7 @@ namespace uni {
 
     Caterbug::Caterbug(
         vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render
-    ): super(pos, path, "assets/bug-001.png", render, 2.f, 25, 25, 0xFFFF00FF) {}
+    ): super(pos, path, "assets/enemies/caterbug-001.png", render, 2.f, 25, 25, 0xFFFF00FF) {}
     Caterbug::Caterbug(
         int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render
     ): self(vec2i{x, y}, path, render) {}

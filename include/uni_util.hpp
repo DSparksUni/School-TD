@@ -7,6 +7,7 @@
 #include <sstream>
 #include <vector>
 #include <cmath>
+#include <memory>
 
 #include "SDL/SDL.h"
 #include "SDL_ttf/SDL_ttf.h"
@@ -45,6 +46,22 @@ namespace uni {
 
     struct circle {
         short int x, y, r;
+    };
+
+    struct KeySwitch {
+    private:
+        bool m_on;
+        bool m_switch;
+    
+    public:
+        KeySwitch() noexcept;
+
+        nodiscard bool on() const noexcept;
+
+        void turn_on() noexcept;
+        void turn_off() noexcept;
+
+        void activate(bool key) noexcept;
     };
 
     double distance(double, double, double, double) noexcept;

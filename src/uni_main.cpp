@@ -8,16 +8,7 @@
 #include "SDL_ttf/SDL_ttf.h"
 #include "maths/vec.h"
 
-#include "uni_util.hpp"
-#include "uni_window.hpp"
-#include "uni_render.hpp"
-#include "uni_enemy.hpp"
-#include "uni_button.hpp"
-#include "uni_tower.hpp"
-#include "uni_mouse.hpp"
-#include "uni_keyboard.hpp"
-#include "uni_font.hpp"
-#include "uni_game.hpp"
+#include "uni.hpp"
 
 static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 910;
 static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = DEFAULT_WINDOW_WIDTH * 9 / 16;
@@ -36,17 +27,14 @@ private:
     SDL_Texture* test_lvl;
     uni::Font* monogram;
     SDL_Texture* pause_text;
-    std::unique_ptr<uni::PrimitiveButton> test_button;
+    std::unique_ptr<uni::Button> test_button;
     uni::Enemy* test_enemy;
     std::unique_ptr<uni::Tower> test_tower;
-    bool pause;
-    bool pause_switch;
+    uni::KeySwitch pause_switch;
 
     #ifdef DEBUG
-        bool reset;
-        bool reset_switch;
-        bool debug_point;
-        bool debug_point_switch;
+        uni::KeySwitch reset_switch;
+        uni::KeySwitch debug_point_switch;
     #endif
 
     void draw_pause_screen() noexcept;
@@ -59,15 +47,14 @@ public:
     SchoolTD(
         uint32_t window_width, uint32_t window_height, const char* title
     ) noexcept;
-    virtual ~SchoolTD() = default;
 };
 
 int main(int argc, char** argv) {
     SchoolTD game(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "SchoolTD");
     uni::error runtime_error = game.run();
-    if(!runtime_error) return 0;
 
     switch(runtime_error) {
+    case uni::error::SUCCESS: return 0;
     case uni::error::SDL_INIT_ERROR: {
         uerr << "Failed to initialize SDL...\n";
         uinf << SDL_GetError() << '\n';
@@ -100,28 +87,19 @@ int main(int argc, char** argv) {
         uerr << "Failed to render text with provided font...\n";
         uinf << TTF_GetError() << '\n';
     } break;
-    default: uerr << "Unknown...\n";
+    case uni::error::ERROR_COUNT: {
+        uerr << "Unreachable...\n";
+    }; break;
     }
 
     return -1;
 }
 
-#ifdef DEBUG
 SchoolTD::SchoolTD(
     uint32_t window_width, uint32_t window_height, const char* window_title
 ) noexcept: super(window_width, window_height, window_title), test_lvl(nullptr),
             monogram(nullptr), pause_text(nullptr), test_button(nullptr),
-            test_enemy(nullptr), test_tower(nullptr), pause(false),
-            pause_switch(false), reset(false), reset_switch(false),
-            debug_point(false), debug_point_switch(false) {}
-#else
-SchoolTD::SchoolTD(
-    uint32_t window_width, uint32_t window_height, const char* window_title
-) noexcept: super(window_width, window_height, window_title), test_lvl(nullptr),
-            monogram(nullptr), pause_text(nullptr), test_button(nullptr),
-            test_enemy(nullptr), test_tower(nullptr), pause(false),
-            pause_switch(false) {}
-#endif
+            test_enemy(nullptr), test_tower(nullptr) {}
 
 void SchoolTD::draw_pause_screen() noexcept {
     // Apply background fade
@@ -226,9 +204,9 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     test_tower->draw(window);
 
     #ifdef DEBUG
-        if(debug_point) draw_debug_points();
+        if(debug_point_switch.on()) draw_debug_points();
     #endif
-    if(pause) draw_pause_screen();
+    if(pause_switch.on()) draw_pause_screen();
 
     // Event handling
     SDL_Event event;
@@ -238,47 +216,32 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     }
 
     // Pause checking (keyboard)
-    const bool space_down = key_listener->key_down(SDL_SCANCODE_SPACE);
-    if(space_down && !pause_switch) {
-        pause = !pause;
-        pause_switch = true;
-    } else if(!space_down && pause_switch) pause_switch = false;
+    pause_switch.activate(key_listener->key_down(SDL_SCANCODE_SPACE));
 
     // Pause checking (button)
-    if(mouse_listener->get_mouse_button(1) && pause) {
+    if(mouse_listener->get_mouse_button(1) && pause_switch.on()) {
         if(test_button->click(
             window->backwards_map_point(mouse_listener->get_mouse_pos())
-        )) pause = false;
+        )) pause_switch.turn_off();
     }
 
     // Debug switches
     #ifdef DEBUG
         // Reset (keyboard)
-        const bool reset_button_down = key_listener->key_down(RESET_HOTKEY);
-        if(reset_button_down && !reset_switch) {
-            reset = !reset;
-            reset_switch = true;
-        } else if(!reset_button_down && reset_switch) reset_switch = false;
+        reset_switch.activate(key_listener->key_down(RESET_HOTKEY));
 
         // Debug points (keyboard)
-        const bool debug_point_button_down = key_listener->key_down(
-            DEBUG_POINT_HOTKEY
-        );
-        if(debug_point_button_down && !debug_point_switch) {
-            debug_point = !debug_point;
-            debug_point_switch = true;
-        } else if(!debug_point_button_down && debug_point_switch)
-            debug_point_switch = false;
+        debug_point_switch.activate(key_listener->key_down(DEBUG_POINT_HOTKEY));
     #endif
 
     // Reset handler
-    if(reset) {
-        reset = false;
+    if(reset_switch.on()) {
+        reset_switch.turn_off();
         test_enemy->reset(vec2i{0, 93});
     }
 
     // Update sprites and display
-    if(!pause) {
+    if(!pause_switch.on()) {
         test_enemy->update(delta_time);
         test_tower->update(delta_time);
     }
