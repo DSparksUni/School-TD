@@ -58,7 +58,6 @@ namespace uni {
         SDL_RenderFillRect(window->render(), &temp_rect);
     }
 
-
     ImageButton::ImageButton(
         SDL_Rect rect, SDL_Renderer* render, const char* img_path
     ): super(rect) {

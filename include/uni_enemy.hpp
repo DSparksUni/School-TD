@@ -22,7 +22,7 @@ namespace uni {
         int m_path_idx;
         vec2i m_target;
         vec2i m_last;
-        SDL_Texture* m_image;
+        unique_texture m_image;
 
         const float c_speed;
         const uint32_t c_width;
@@ -31,8 +31,6 @@ namespace uni {
 
         void set_direction() noexcept;
         void advance() noexcept;
-
-        virtual double distance_threshold(double dt) const noexcept = 0;
 
     public:
         Enemy(
@@ -47,7 +45,6 @@ namespace uni {
             float speed, uint32_t width, uint32_t height,
             uint32_t color
         );
-        virtual ~Enemy();
 
         nodiscard vec2i pos() const noexcept;
         nodiscard float speed() const noexcept;
@@ -56,7 +53,7 @@ namespace uni {
 
         void reset(vec2i pos) noexcept;
 
-        void draw(std::unique_ptr<Window>& window) const noexcept;
+        void draw(const Window* window) const noexcept;
         void update(double dt) noexcept;
     };
 
@@ -73,9 +70,5 @@ namespace uni {
             int x, int y, const std::vector<vec2i>& path,
             SDL_Renderer* render
         );
-        virtual ~Caterbug() = default;
-    
-    protected:
-        virtual double distance_threshold(double dt) const noexcept override;
     };
 }

@@ -34,4 +34,8 @@ namespace uni {
     double distance(double x1, double y1, vec2d p2) noexcept {
         return distance(p2, x1, y1);
     }
+
+    void SDL_texture_deleter(SDL_Texture* texture) noexcept {
+        SDL_DestroyTexture(texture);
+    }
 }

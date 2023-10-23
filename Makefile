@@ -18,8 +18,8 @@ LIBS = -L $(LDIR) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
 CLEAN = $(CXX_OBJS_WIN32_COMPAT) $(TARGET)
 
 CXX = g++
-CXXFLAGS = -g -I include -Wall -Wno-missing-braces -Wconversion -pedantic \
-		   -std=c++17 -D DEBUG
+CXXFLAGS = -g -I include -Wall -Wno-missing-braces -Wconversion -Wextra \
+		   -pedantic -std=c++17 -D DEBUG
 
 all: $(TARGET)
 	echo Build complete!

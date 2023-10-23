@@ -46,9 +46,6 @@ namespace uni {
     }
 
     void Game::destroy() noexcept {
-        TTF_Quit();
-        IMG_Quit();
-        SDL_Quit();
     }
 
     nodiscard uni::error Game::run() noexcept {
@@ -63,5 +60,11 @@ namespace uni {
     ret:
         this->destroy();
         return err;
+    }
+
+    void quit() noexcept {
+        TTF_Quit();
+        IMG_Quit();
+        SDL_Quit();
     }
 }

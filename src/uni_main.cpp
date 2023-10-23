@@ -24,11 +24,11 @@ private:
     using super = uni::Game;
 
     std::vector<vec2i> test_lvl_points;
-    SDL_Texture* test_lvl;
-    uni::Font* monogram;
-    SDL_Texture* pause_text;
+    uni::unique_texture test_lvl;
+    std::unique_ptr<uni::Font> monogram;
+    uni::unique_texture pause_text;
     std::unique_ptr<uni::Button> test_button;
-    uni::Enemy* test_enemy;
+    std::unique_ptr<uni::Enemy> test_enemy;
     std::unique_ptr<uni::Tower> test_tower;
     uni::KeySwitch pause_switch;
 
@@ -42,63 +42,72 @@ private:
 
     nodiscard virtual uni::error init() noexcept override;
     nodiscard virtual uni::error loop() noexcept override;
-    virtual void destroy() noexcept override;
 public:
     SchoolTD(
         uint32_t window_width, uint32_t window_height, const char* title
     ) noexcept;
 };
 
-int main(int argc, char** argv) {
-    SchoolTD game(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "SchoolTD");
-    uni::error runtime_error = game.run();
-
-    switch(runtime_error) {
+nodiscard int handle_runtime_error(uni::error error) noexcept {
+    switch(error) {
     case uni::error::SUCCESS: return 0;
     case uni::error::SDL_INIT_ERROR: {
         uerr << "Failed to initialize SDL...\n";
         uinf << SDL_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::SDL_IMAGE_INIT_ERROR: {
         uerr << "Failed to initialize SDL_image...\n";
         uinf << IMG_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::SDL_TTF_INIT_ERROR: {
         uerr << "Failed to intitialize SDL_ttf...\n";
         uinf << TTF_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::SDL_RENDERER_CREATION_ERROR: {
         uerr << "Failed to create SDL renderer...\n";
         uinf << SDL_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::SDL_WINDOW_CREATION_ERROR: {
         uerr << "Failed to create SDL window...\n";
         uinf << SDL_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::SDL_IMAGE_TEXTURE_CREATION_ERROR: {
         uerr << "Failed to create image texture...\n";
         uinf << SDL_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::FONT_CREATION_ERROR: {
         uerr << "Failed to create font...\n";
         uinf << TTF_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::FONT_RENDER_ERROR: {
         uerr << "Failed to render text with provided font...\n";
         uinf << TTF_GetError() << '\n';
-    } break;
+    } return -1;
     case uni::error::ERROR_COUNT: {
         uerr << "Unreachable...\n";
-    }; break;
+    }; return -1;
     }
 
-    return -1;
+    return -2;
+}
+
+int main(int argc, char** argv) {
+    (void)argc; (void)argv;
+
+    uni::error runtime_error; {
+        SchoolTD game(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "SchoolTD");
+        runtime_error = game.run();
+    }
+
+    uni::quit();
+    return handle_runtime_error(runtime_error);
 }
 
 SchoolTD::SchoolTD(
     uint32_t window_width, uint32_t window_height, const char* window_title
-) noexcept: super(window_width, window_height, window_title), test_lvl(nullptr),
-            monogram(nullptr), pause_text(nullptr), test_button(nullptr),
+) noexcept: super(window_width, window_height, window_title),
+            test_lvl(nullptr, nullptr), monogram(nullptr),
+            pause_text(nullptr, nullptr), test_button(nullptr),
             test_enemy(nullptr), test_tower(nullptr) {}
 
 void SchoolTD::draw_pause_screen() noexcept {
@@ -121,7 +130,7 @@ void SchoolTD::draw_pause_screen() noexcept {
         button_inner.x + 5, button_inner.y + 5,
         button_inner.w - 10, button_inner.h - 10
     );
-    SDL_RenderCopy(window->render(), pause_text, NULL, &text_rect);
+    SDL_RenderCopy(window->render(), pause_text.get(), NULL, &text_rect);
 }
 
 void SchoolTD::draw_debug_points() const noexcept {
@@ -133,7 +142,7 @@ void SchoolTD::draw_debug_points() const noexcept {
             UNI_UNPACK_CIRCLE(point_circle), point_circle.r
         };
 
-        SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xBB5533FF));
+        SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xBF4433FF));
         SDL_RenderFillRect(window->render(), &point_rect);
     }
 }
@@ -163,25 +172,33 @@ nodiscard uni::error SchoolTD::init() noexcept {
         {118, 417}, {68, 419},  {5, 415}
     };
 
-    test_lvl = IMG_LoadTexture(window->render(), "assets/test_map.png");
-    if(!test_lvl) return uni::error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
+    const auto test_lvl_raw = IMG_LoadTexture(
+        window->render(), "assets/test_map.png"
+    );
+    if(!test_lvl_raw) return uni::error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
+    test_lvl = uni::unique_texture(
+        test_lvl_raw, uni::SDL_texture_deleter
+    );
 
     try {
-        monogram = new uni::Font("assets/monogram.ttf");
+        monogram = std::make_unique<uni::Font>("assets/monogram.ttf");
     } catch(uni::error e) {
         return e;
     }
 
-    pause_text = monogram->render_u8(
+    const auto pause_text_raw = monogram->render_u8(
         window->render(), "Pause", SDL_Color{0, 0, 0, 255}
     );
-    if(!pause_text) return uni::error::FONT_RENDER_ERROR;
+    if(!pause_text_raw) return uni::error::FONT_RENDER_ERROR;
+    pause_text = uni::unique_texture(pause_text_raw, uni::SDL_texture_deleter);
 
     test_button = std::make_unique<uni::PrimitiveButton>(
         DEFAULT_WINDOW_WIDTH / 2 - 50, DEFAULT_WINDOW_HEIGHT / 2 - 25, 100, 50
     );
 
-    test_enemy = new uni::Caterbug(0, 93, test_lvl_points, window->render());
+    test_enemy = std::make_unique<uni::Caterbug>(
+        0, 93, test_lvl_points, window->render()
+    );
 
     test_tower = std::make_unique<uni::TestTower>(300, 256, 30);
 
@@ -197,11 +214,11 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     SDL_RenderClear(window->render());
 
     // Render background
-    SDL_RenderCopy(window->render(), test_lvl, NULL, NULL);
+    SDL_RenderCopy(window->render(), test_lvl.get(), NULL, NULL);
 
     // Draw sprites
-    test_enemy->draw(window);
-    test_tower->draw(window);
+    test_enemy->draw(window.get());
+    test_tower->draw(window.get());
 
     #ifdef DEBUG
         if(debug_point_switch.on()) draw_debug_points();
@@ -232,13 +249,13 @@ nodiscard uni::error SchoolTD::loop() noexcept {
 
         // Debug points (keyboard)
         debug_point_switch.activate(key_listener->key_down(DEBUG_POINT_HOTKEY));
+    
+        // Reset handler
+        if(reset_switch.on()) {
+            reset_switch.turn_off();
+            test_enemy->reset(vec2i{0, 93});
+        }
     #endif
-
-    // Reset handler
-    if(reset_switch.on()) {
-        reset_switch.turn_off();
-        test_enemy->reset(vec2i{0, 93});
-    }
 
     // Update sprites and display
     if(!pause_switch.on()) {
@@ -249,11 +266,4 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     SDL_RenderPresent(window->render());
 
     return uni::error::SUCCESS;
-}
-
-void SchoolTD::destroy() noexcept {
-    if(test_lvl) SDL_DestroyTexture(test_lvl);
-    if(monogram) delete monogram;
-    if(test_enemy) delete test_enemy;
-    super::destroy();
 }

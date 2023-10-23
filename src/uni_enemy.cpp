@@ -8,11 +8,12 @@ namespace uni {
         uint32_t color
     ):  m_pos(static_cast<vec2f>(pos)), m_vel(vec2f::zero()),
         m_path(path), m_path_idx(-1), m_target(vec2i::zero()),
-        m_last(vec2i::zero()), c_speed(speed), c_width(width),
-        c_height(height), c_color(color)
+        m_last(vec2i::zero()), m_image(nullptr, nullptr), c_speed(speed),
+        c_width(width), c_height(height), c_color(color)
     {
-        this->m_image = IMG_LoadTexture(render, img_path);
-        if(!this->m_image) throw error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
+        auto image_raw = IMG_LoadTexture(render, img_path);
+        if(!image_raw) throw error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
+        this->m_image = unique_texture(image_raw, uni::SDL_texture_deleter);
 
         this->advance();
     }
@@ -22,9 +23,6 @@ namespace uni {
         float speed, uint32_t width, uint32_t height,
         uint32_t color
     ): Enemy(vec2i{x, y}, path, img_path, render, speed, width, height, color) {}
-    Enemy::~Enemy() {
-        SDL_DestroyTexture(this->m_image);
-    }
 
     void Enemy::set_direction() noexcept {
         this->m_vel = normalize((
@@ -67,13 +65,13 @@ namespace uni {
         this->advance();
     }
 
-    void Enemy::draw(std::unique_ptr<Window>& window) const noexcept {
+    void Enemy::draw(const Window* window) const noexcept {
         SDL_Rect rect = window->map_rect(
             static_cast<uint32_t>(this->m_pos.x + 0.5f),
             static_cast<uint32_t>(this->m_pos.y + 0.5f),
             this->c_width, this->c_height
         );
-        SDL_RenderCopy(window->render(), this->m_image, NULL, &rect);
+        SDL_RenderCopy(window->render(), this->m_image.get(), NULL, &rect);
     }
 
     void Enemy::update(double dt) noexcept {
@@ -86,18 +84,17 @@ namespace uni {
             static_cast<vec2d>(this->m_pos),
             static_cast<vec2d>(this->m_target)
         );
-        if(targ_dist <= this->distance_threshold(dt)) this->advance();
+        if(targ_dist <= this->c_speed * (this->c_speed + 1.f)) this->advance();
     }
 
 
     Caterbug::Caterbug(
         vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render
-    ): super(pos, path, "assets/enemies/caterbug-001.png", render, 2.f, 25, 25, 0xFFFF00FF) {}
+    ): super(
+        pos, path, "assets/enemies/caterbug-001.png", render, 2.f,
+        25, 25, 0xFFFF00FF
+    ) {}
     Caterbug::Caterbug(
         int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render
     ): self(vec2i{x, y}, path, render) {}
-
-    double Caterbug::distance_threshold(double dt) const noexcept {
-        return 3 * this->c_speed;
-    }
 }

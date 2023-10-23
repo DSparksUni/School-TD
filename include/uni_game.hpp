@@ -44,4 +44,6 @@ namespace uni {
 
         nodiscard uni::error run() noexcept;
     };
+
+    void quit() noexcept;
 }

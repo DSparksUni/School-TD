@@ -31,6 +31,8 @@
 #define UNI_UNPACK_CIRCLE(c) c.x, c.y, c.r
 
 namespace uni {
+    using unique_texture = std::unique_ptr<SDL_Texture, void(*)(SDL_Texture*)>;
+
     enum error {
         SUCCESS = 0,
         SDL_INIT_ERROR,
@@ -68,6 +70,8 @@ namespace uni {
     double distance(vec2d, vec2d) noexcept;
     double distance(vec2d, double, double) noexcept;
     double distance(double, double, vec2d) noexcept;
+
+    void SDL_texture_deleter(SDL_Texture*) noexcept;
 }
 
 #endif  //UNI_U TIL_HPP_INCLUDED_
