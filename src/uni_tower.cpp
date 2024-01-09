@@ -100,8 +100,8 @@ namespace uni {
 
     void Tower::shoot() noexcept {
         this->m_bullets.emplace_back(
-            this->m_rect.x - (this->m_rect.w / 2),
-            this->m_rect.y - (this->m_rect.h / 2),
+            this->m_rect.x + (this->m_rect.w / 2),
+            this->m_rect.y + (this->m_rect.h / 2),
             &this->m_target
         );
     }

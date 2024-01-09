@@ -18,7 +18,7 @@ namespace uni {
     struct Bullet {
     private:
         using self = Bullet;
-        static constexpr float DEFAULT_SPEED = 6.f;
+        static constexpr float DEFAULT_SPEED = 12.f;
         static constexpr float TARGET_THRESHOLD = 5.f;
     
     public:
