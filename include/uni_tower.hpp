@@ -10,25 +10,33 @@
 
 #include "uni_window.hpp"
 #include "uni_util.hpp"
-#include "uni_mouse.hpp"
+#include "uni_keyboard.hpp"
+#include "uni_font.hpp"
+#include "uni_enemy.hpp"
 
 namespace uni {
     struct Bullet {
     private:
         using self = Bullet;
+        static constexpr float DEFAULT_SPEED = 6.f;
+        static constexpr float TARGET_THRESHOLD = 5.f;
     
     public:
         vec2i pos, vel;
+        vec2i* target;
         const float speed;
+        const int width = 5;
 
-        Bullet(vec2i p, vec2i v, float s) noexcept;
-        Bullet(int px, int py, vec2i v, float s) noexcept;
-        Bullet(vec2i p, int vx, int vy, float s) noexcept;
-        Bullet(int px, int py, int vx, int vy, float s) noexcept;
-        Bullet(vec2i p, vec2i v) noexcept;
-        Bullet(int px, int py, vec2i v) noexcept;
-        Bullet(vec2i p, int vx, int vy) noexcept;
-        Bullet(int px, int py, int vx, int vy) noexcept;
+        Bullet() noexcept;
+        Bullet(vec2i p, vec2i* t, float s) noexcept;
+        Bullet(int px, int py, vec2i* t, float s) noexcept;
+        Bullet(vec2i p, vec2i* t) noexcept;
+        Bullet(int px, int py, vec2i* t) noexcept;
+
+        void operator=(const Bullet& bullet) noexcept;
+
+        void aim() noexcept;
+        nodiscard bool hit_target() const noexcept;
 
         void draw(const Window* window) const noexcept;
         void update(double dt) noexcept;
@@ -37,20 +45,29 @@ namespace uni {
     class Tower {
     private:
         using self = Tower;
+        const double reload_cycle = 2.0;
+        const double reload_mod = 0.25;
+        const double range = 300.0;
+
     protected:
         SDL_Rect m_rect;
         std::vector<Bullet> m_bullets;
-        std::shared_ptr<MouseListener> m_mouse_listener;
-
+        std::shared_ptr<KeyboardListener> m_key_listener;
+        double m_reload;
+        vec2i m_target;
+        
     public:
         Tower(SDL_Rect rect);
         Tower(int x, int y, int w, int h);
         virtual ~Tower() = default;
 
-        virtual void draw(const Window* window) const noexcept;
-        virtual void update(double dt) noexcept;
+        virtual void draw(
+            const Window* window, Font* font
+        ) const noexcept;
+        virtual void update(const Window* window, double dt) noexcept;
 
         void shoot() noexcept;
+        void aim(const Enemy* enemy) noexcept;
 
         nodiscard SDL_Rect rect() const noexcept;
     };
@@ -62,12 +79,11 @@ namespace uni {
     public:
         TestTower(circle c);
         TestTower(int x, int y, int r);
-        virtual ~TestTower() = default;
 
         virtual void draw(
-            const Window* window
+            const Window* window, Font* font
         ) const noexcept override;
-        virtual void update(double dt) noexcept override;
+        virtual void update(const Window* window, double dt) noexcept override;
 
         nodiscard circle get_circle() const noexcept;
     };

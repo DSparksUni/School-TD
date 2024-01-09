@@ -2,55 +2,112 @@
 
 namespace uni {
     Bullet::Bullet(
-        vec2i p, vec2i v, float s
-    ) noexcept: pos(p), vel(v), speed(s) {}
+        vec2i p, vec2i* t, float s
+    ) noexcept: pos(p), target(t), speed(s) {
+        if(this->target) this->aim();
+    }
+    Bullet::Bullet() noexcept:
+        self(vec2i::zero(), nullptr, self::DEFAULT_SPEED) {}
     Bullet::Bullet(
-        int px, int py, vec2i v, float s
-    ) noexcept: pos{px, py}, vel(v), speed(s) {}
-    Bullet::Bullet(
-        vec2i p, int vx, int vy, float s
-    ) noexcept: pos(p), vel{vx, vy}, speed(s) {}
-    Bullet::Bullet(
-        int px, int py, int vx, int vy, float s
-    ) noexcept: pos{px, py}, vel{vx, vy}, speed(s) {} 
-    Bullet::Bullet(vec2i p, vec2i v) noexcept: self(p, v, 6.f) {}
-    Bullet::Bullet(int px, int py, vec2i v) noexcept: self(px, py, v, 6.f) {}
-    Bullet::Bullet(vec2i p, int vx, int vy) noexcept: self(p, vx, vy, 6.f) {}
-    Bullet::Bullet(
-        int px, int py, int vx, int vy
-    ) noexcept: self(px, py, vx, vy, 6.f) {}
+        int px, int py, vec2i* t, float s
+    ) noexcept: self(vec2i{px, py}, t, s) {}
+    Bullet::Bullet(vec2i p, vec2i* t) noexcept:
+        self(p, t, self::DEFAULT_SPEED) {}
+    Bullet::Bullet(int px, int py, vec2i* t) noexcept:
+        self(px, py, t, self::DEFAULT_SPEED) {}
+
+    void Bullet::operator=(const Bullet& bullet) noexcept {
+        this->pos = bullet.pos;
+        this->target = bullet.target;
+        if(this->target) this->aim();
+    }
+
+    void Bullet::aim() noexcept {
+        this->vel = normalize(
+            static_cast<vec2f>(*this->target) -
+            static_cast<vec2f>(this->pos)
+        ) * this->speed;
+    }
+
+    nodiscard bool Bullet::hit_target() const noexcept {
+        return dist(this->pos, *this->target) <= self::TARGET_THRESHOLD;
+    }
 
     void Bullet::draw(const Window* window) const noexcept {
-        const auto mapped = window->map_rect(this->pos.x, this->pos.y, 5, 5);
+        const auto mapped = window->map_rect(
+            this->pos.x, this->pos.y, this->width, this->width
+        );
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFF00DAFF));
-        SDL_RenderDrawRect(window->render(), &mapped);
+        SDL_RenderFillRect(window->render(), &mapped);
     }
 
     void Bullet::update(double dt) noexcept {
+        this->aim();
+        
         this->pos += static_cast<vec2i>(
             static_cast<vec2d>(this->vel) * dt + 0.5
         );
     }
 
     Tower::Tower(SDL_Rect rect):
-        m_rect(rect), m_mouse_listener(MouseListener::get()) {}
+        m_rect(rect), m_key_listener(KeyboardListener::get()),
+        m_reload(0.0), m_target(vec2i::zero()) {}
     Tower::Tower(int x, int y, int w, int h):
-        m_rect{x, y, w, h}, m_mouse_listener(MouseListener::get()) {}
+        m_rect{x, y, w, h}, m_key_listener(KeyboardListener::get()),
+        m_reload(0.0), m_target(vec2i::zero()) {}
 
-    void Tower::draw(const Window* window) const noexcept {
+    void Tower::draw(
+        const Window* window, Font* font
+    ) const noexcept {
+        auto bullet_alive_text = font->render_u8(
+            window->render(), std::to_string(this->m_bullets.size()).c_str(),
+            SDL_Color{0, 0, 0, 0xFF}
+        ); 
+        auto bullet_alive_rect = window->map_rect(
+            this->m_rect.x + 6, this->m_rect.y, this->m_rect.w - 10,
+            this->m_rect.h
+        );
+        SDL_RenderCopy(
+            window->render(), bullet_alive_text, NULL, &bullet_alive_rect
+        );
+
         for(const auto& bullet : this->m_bullets) bullet.draw(window);
+
+        SDL_DestroyTexture(bullet_alive_text);
     }
 
-    void Tower::update(double dt) noexcept {
-        if(this->m_mouse_listener->get_mouse_button(1)) this->shoot();
+    void Tower::update(const Window* window, double dt) noexcept {
+        if(
+            this->m_key_listener->key_down(SDL_SCANCODE_SPACE) &&
+            this->m_reload >= this->reload_cycle
+        ) {
+            this->shoot();
+            this->m_reload = 0.0;
+        } else this->m_reload += reload_mod * dt;
 
         for(auto& bullet : this->m_bullets) bullet.update(dt);
+        this->m_bullets.erase(std::remove_if(
+            this->m_bullets.begin(), this->m_bullets.end(),
+            [&window](const Bullet& bullet) {
+                return  bullet.pos.y >= window->height()  ||
+                        bullet.pos.y + bullet.width <= 0  ||
+                        bullet.pos.x >= window->width()   ||
+                        bullet.pos.x + bullet.width <= 0  ||
+                        bullet.hit_target();
+            }), this->m_bullets.end()
+        );
     }
 
     void Tower::shoot() noexcept {
         this->m_bullets.emplace_back(
-            this->m_rect.x, this->m_rect.y, 0, 5
+            this->m_rect.x - (this->m_rect.w / 2),
+            this->m_rect.y - (this->m_rect.h / 2),
+            &this->m_target
         );
+    }
+
+    void Tower::aim(const Enemy* enemy) noexcept {
+        this->m_target = enemy->pos();
     }
 
     nodiscard SDL_Rect Tower::rect() const noexcept {
@@ -60,9 +117,9 @@ namespace uni {
     TestTower::TestTower(circle c): super{UNI_UNPACK_CIRCLE(c), c.r} {}
     TestTower::TestTower(int x, int y, int r): super{x, y, r, r} {}
 
-    void TestTower::draw(const Window* window) const noexcept {
-        super::draw(window);
-
+    void TestTower::draw(
+        const Window* window, Font* font
+    ) const noexcept {
         circle mapped_circle = window->map_circle(
             this->m_rect.x, this->m_rect.y, this->m_rect.w
         );
@@ -72,10 +129,12 @@ namespace uni {
     
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFFF00FF));
         SDL_RenderFillRect(window->render(), &mapped_rect);
+
+        super::draw(window, font);
     }
 
-    void TestTower::update(double dt) noexcept {
-        super::update(dt);
+    void TestTower::update(const Window* window, double dt) noexcept {
+        super::update(window, dt);
     }
 
     nodiscard circle TestTower::get_circle() const noexcept {

@@ -15,7 +15,8 @@ namespace uni {
 
         try {
             this->window = std::make_unique<Window>(
-                this->m_window_width, this->m_window_height, this->m_window_title
+                this->m_window_width, this->m_window_height,
+                this->m_window_title
             );
         } catch(uni::error e) {
             return e;

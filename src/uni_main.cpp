@@ -5,7 +5,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_main.h"
 #include "SDL/SDL_image.h"
-#include "SDL_ttf/SDL_ttf.h"
+#include "SDL/SDL_ttf.h"
 #include "maths/vec.h"
 
 #include "uni.hpp"
@@ -13,6 +13,7 @@
 static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 910;
 static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = DEFAULT_WINDOW_WIDTH * 9 / 16;
 
+static constexpr auto PAUSE_HOTKEY = SDL_SCANCODE_ESCAPE;
 #ifdef DEBUG
 static constexpr auto RESET_HOTKEY = SDL_SCANCODE_BACKSPACE;
 static constexpr auto DEBUG_POINT_HOTKEY = SDL_SCANCODE_RETURN;
@@ -218,7 +219,7 @@ nodiscard uni::error SchoolTD::loop() noexcept {
 
     // Draw sprites
     test_enemy->draw(window.get());
-    test_tower->draw(window.get());
+    test_tower->draw(window.get(), this->monogram.get());
 
     #ifdef DEBUG
         if(debug_point_switch.on()) draw_debug_points();
@@ -233,7 +234,7 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     }
 
     // Pause checking (keyboard)
-    pause_switch.activate(key_listener->key_down(SDL_SCANCODE_SPACE));
+    pause_switch.activate(key_listener->key_down(PAUSE_HOTKEY));
 
     // Pause checking (button)
     if(mouse_listener->get_mouse_button(1) && pause_switch.on()) {
@@ -260,7 +261,8 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     // Update sprites and display
     if(!pause_switch.on()) {
         test_enemy->update(delta_time);
-        test_tower->update(delta_time);
+        test_tower->aim(test_enemy.get());
+        test_tower->update(window.get(), delta_time);
     }
 
     SDL_RenderPresent(window->render());

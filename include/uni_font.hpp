@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "SDL/SDL.h"
-#include "SDL_ttf/SDL_ttf.h"
+#include "SDL/SDL_ttf.h"
 
 #include <uni_util.hpp>
 

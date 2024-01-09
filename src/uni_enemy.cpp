@@ -25,10 +25,10 @@ namespace uni {
     ): Enemy(vec2i{x, y}, path, img_path, render, speed, width, height, color) {}
 
     void Enemy::set_direction() noexcept {
-        this->m_vel = normalize((
+        this->m_vel = normalize(
             static_cast<vec2f>(this->m_target) -
             static_cast<vec2f>(this->m_last)
-        )) * this->c_speed;
+        ) * this->c_speed;
     }
 
     void Enemy::advance() noexcept {

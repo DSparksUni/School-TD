@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "SDL/SDL.h"
-#include "SDL_ttf/SDL_ttf.h"
+#include "SDL/SDL_ttf.h"
 #include "maths/vec.h"
 
 #define uerr std::cerr << "[ERROR] "
