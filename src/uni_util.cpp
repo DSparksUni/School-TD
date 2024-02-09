@@ -22,6 +22,20 @@ namespace uni {
         } else if(!key && this->m_switch) this->m_switch = false;
     }
 
+    nodiscard std::string read_entire_file(const char* file_path) {
+        std::ifstream file_stream;
+        std::stringstream file_content;
+
+        file_stream.open(file_path);
+        if((file_stream.rdstate() & std::ifstream::failbit) != 0)
+            throw FILE_OPEN_ERROR;
+
+        std::string line;
+        while(std::getline(file_stream, line)) file_content << line << '\n';
+
+        return file_content.str();
+    }
+
     double distance(double x1, double y1, double x2, double y2) noexcept {
         return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
     }

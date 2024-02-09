@@ -84,6 +84,9 @@ nodiscard int handle_runtime_error(uni::error error) noexcept {
         uerr << "Failed to render text with provided font...\n";
         uinf << TTF_GetError() << '\n';
     } return -1;
+    case uni::error::FILE_OPEN_ERROR: {
+        std::cerr << "Failed to open file...\n";
+    } break;
     case uni::error::ERROR_COUNT: {
         uerr << "Unreachable...\n";
     }; return -1;
@@ -197,9 +200,16 @@ nodiscard uni::error SchoolTD::init() noexcept {
         DEFAULT_WINDOW_WIDTH / 2 - 50, DEFAULT_WINDOW_HEIGHT / 2 - 25, 100, 50
     );
 
-    test_enemy = std::make_unique<uni::Caterbug>(
-        0, 93, test_lvl_points, window->render()
-    );
+    try {
+        test_enemy = std::make_unique<uni::Caterbug>(
+            0, 93, test_lvl_points, window->render()
+        );
+    } catch(uni::error e) { switch(e) {
+        case uni::error::FILE_OPEN_ERROR: {
+            //uerr << "Couldn't open enemy JSON file...\n";
+            return uni::error::FILE_OPEN_ERROR;
+        } break;
+    }}
 
     test_tower = std::make_unique<uni::TestTower>(300, 256, 30);
 

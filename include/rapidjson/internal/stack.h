@@ -17,7 +17,6 @@
 
 #include "../allocators.h"
 #include "swap.h"
-#include <cstddef>
 
 #if defined(__clang__)
 RAPIDJSON_DIAG_PUSH

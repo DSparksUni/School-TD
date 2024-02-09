@@ -21,6 +21,16 @@ CXX = g++
 CXXFLAGS = -g -I include -Wall -Wno-missing-braces -Wconversion -Wextra \
 		   -pedantic -std=c++17 -D DEBUG
 
+TEST_TARGET = test.exe
+__TEST_OBJS = test.o uni_util.o
+TEST_OBJS = $(patsubst %.o,$(ODIR)/%.o,$(__TEST_OBJS))
+
+test: $(TEST_TARGET)
+	echo Test build complete!
+
+$(TEST_TARGET): $(TEST_OBJS)
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+
 all: $(TARGET)
 	echo Build complete!
 

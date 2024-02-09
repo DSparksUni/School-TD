@@ -8,6 +8,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "maths/vec.h"
+#include "rapidjson/document.h"
 
 #include "uni_util.hpp"
 #include "uni_window.hpp"
@@ -23,11 +24,12 @@ namespace uni {
         vec2i m_target;
         vec2i m_last;
         unique_texture m_image;
+        size_t m_health;
 
-        const float c_speed;
-        const uint32_t c_width;
-        const uint32_t c_height;
-        const uint32_t c_color;
+        float c_speed;
+        uint32_t c_width;
+        uint32_t c_height;
+        uint32_t c_color;
 
         void set_direction() noexcept;
         void advance() noexcept;
@@ -43,7 +45,15 @@ namespace uni {
             int x, int y, const std::vector<vec2i>& path,
             const char* img_path, SDL_Renderer* render,
             float speed, uint32_t width, uint32_t height,
-            uint32_t color
+            uint32_t color;
+        );
+        Enemy(
+            vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render,
+            const char* data_path, const char* data_name
+        );
+        Enemy(
+            int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render,
+            const char* data_path, const char* data_name
         );
 
         nodiscard vec2i pos() const noexcept;

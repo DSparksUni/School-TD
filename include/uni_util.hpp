@@ -42,7 +42,8 @@ namespace uni {
         SDL_RENDERER_CREATION_ERROR,
         SDL_IMAGE_TEXTURE_CREATION_ERROR,
         FONT_CREATION_ERROR,
-        FONT_RENDER_ERROR,      
+        FONT_RENDER_ERROR,    
+        FILE_OPEN_ERROR,  
         ERROR_COUNT
     };
 
@@ -65,6 +66,8 @@ namespace uni {
 
         void activate(bool key) noexcept;
     };
+
+    nodiscard std::string read_entire_file(const char* file_path);
 
     double distance(double, double, double, double) noexcept;
     double distance(vec2d, vec2d) noexcept;
