@@ -26,25 +26,12 @@ namespace uni {
 
     Enemy::Enemy(
         vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render,
-        const char* data_path, const char* data_name
+        const char* data_name
     ):  m_pos(static_cast<vec2f>(pos)), m_vel(vec2i::zero()),
         m_path(path), m_path_idx(-1), m_target(vec2i::zero()),
         m_last(vec2i::zero()), m_image(nullptr, nullptr)
     {
-        std::string json_enemy_data;
-
-        try {
-            json_enemy_data = read_entire_file(data_path);
-        } catch(uni::error e) {
-            throw e;
-        }
-
-        rapidjson::Document json_data;
-        json_data.Parse(json_enemy_data.c_str());
-
-        assert(json_data.HasMember(data_name));
-        assert(json_data[data_name].IsObject());
-        auto enemy_data = json_data[data_name].GetObject();
+        const rapidjson::Document enemy_data = read_json_data(data_name);
 
         assert(enemy_data.HasMember("speed"));
         assert(enemy_data["speed"].IsFloat());
@@ -78,8 +65,8 @@ namespace uni {
 
     Enemy::Enemy(
         int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render,
-        const char* data_path, const char* data_name
-    ): self(vec2i{x, y}, path, render, data_path, data_name) {}
+        const char* data_name
+    ): self(vec2i{x, y}, path, render, data_name) {}
 
     void Enemy::set_direction() noexcept {
         this->m_vel = normalize(
@@ -148,7 +135,7 @@ namespace uni {
     Caterbug::Caterbug(
         vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render
     ): super(
-        pos, path, render, "data/Enemy Data.json", "Caterbug"
+        pos, path, render, "caterbug"
     ) {}
     Caterbug::Caterbug(
         int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render

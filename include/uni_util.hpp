@@ -12,6 +12,7 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_ttf.h"
 #include "maths/vec.h"
+#include "rapidjson/document.h"
 
 #define uerr std::cerr << "[ERROR] "
 #define uinf std::cerr << "[INFO] "
@@ -68,6 +69,7 @@ namespace uni {
     };
 
     nodiscard std::string read_entire_file(const char* file_path);
+    nodiscard rapidjson::Document read_json_data(const char* data_name);
 
     double distance(double, double, double, double) noexcept;
     double distance(vec2d, vec2d) noexcept;

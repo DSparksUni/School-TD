@@ -36,6 +36,19 @@ namespace uni {
         return file_content.str();
     }
 
+    nodiscard rapidjson::Document read_json_data(const char* data_name) {
+        std::stringstream data_path;
+        data_path << "data/" << data_name << "_data.json";
+        const std::string file_path = data_path.str();
+
+        const std::string raw_json = read_entire_file(file_path.c_str());
+
+        rapidjson::Document json_data;
+        json_data.Parse(raw_json.c_str());
+
+        return json_data;
+    }
+
     double distance(double x1, double y1, double x2, double y2) noexcept {
         return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
     }
