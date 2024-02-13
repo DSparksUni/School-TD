@@ -258,7 +258,7 @@ nodiscard uni::error SchoolTD::loop() noexcept {
         // Reset handler
         if(reset_switch.on()) {
             reset_switch.turn_off();
-            test_enemy->reset(vec2i{0, 93});
+            test_enemy->reset(vec2i{0, test_lvl_points[0].y});
         }
     #endif
 

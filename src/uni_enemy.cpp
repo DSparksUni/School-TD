@@ -128,7 +128,8 @@ namespace uni {
             static_cast<vec2d>(this->m_pos),
             static_cast<vec2d>(this->m_target)
         );
-        if(targ_dist <= this->c_speed * (this->c_speed + 1.f)) this->advance();
+        if(targ_dist <= this->c_speed * (this->c_speed + 1.f) * dt)
+            this->advance();
     }
 
 
