@@ -40,22 +40,16 @@ namespace uni {
     PrimitiveButton::PrimitiveButton(int x, int y, int w, int h):
         PrimitiveButton(SDL_Rect{x, y, w, h}) {}
 
-    void PrimitiveButton::draw(
-        std::unique_ptr<Window>& window
-    ) const noexcept {
-        SDL_Rect temp_rect;
+    void PrimitiveButton::draw(SDL_Renderer* render) const noexcept {
+        SDL_SetRenderDrawColor(
+            render, UNI_UNPACK_COLOR(this->m_border_color)
+        );
+        SDL_RenderFillRect(render, &this->m_border);
 
         SDL_SetRenderDrawColor(
-            window->render(), UNI_UNPACK_COLOR(this->m_border_color)
+            render, UNI_UNPACK_COLOR(this->m_body_color)
         );
-        temp_rect = window->map_rect(this->m_border);
-        SDL_RenderFillRect(window->render(), &temp_rect);
-
-        SDL_SetRenderDrawColor(
-            window->render(), UNI_UNPACK_COLOR(this->m_body_color)
-        );
-        temp_rect = window->map_rect(this->m_body);
-        SDL_RenderFillRect(window->render(), &temp_rect);
+        SDL_RenderFillRect(render, &this->m_body);
     }
 
     ImageButton::ImageButton(
@@ -71,8 +65,7 @@ namespace uni {
         SDL_DestroyTexture(this->m_image);
     }
 
-    void ImageButton::draw(std::unique_ptr<Window>& window) const noexcept {
-        const SDL_Rect border_rect = window->map_rect(this->m_border);
-        SDL_RenderCopy(window->render(), this->m_image, NULL, &border_rect);
+    void ImageButton::draw(SDL_Renderer* render) const noexcept {
+        SDL_RenderCopy(render, this->m_image, NULL, &this->m_border);
     }
 }

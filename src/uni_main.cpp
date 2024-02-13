@@ -119,31 +119,28 @@ void SchoolTD::draw_pause_screen() noexcept {
     SDL_SetRenderDrawColor(window->render(), 0xFF, 0xFF, 0xFF, 0x8A);
     SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
     SDL_Rect alpha_block = {
-        0, 0, static_cast<int>(window->width()),
-        static_cast<int>(window->height())
+        0, 0, static_cast<int>(window->scl_width()),
+        static_cast<int>(window->scl_height())
     };
     SDL_RenderFillRect(window->render(), &alpha_block);
             
     // Draw the unpause button
-    test_button->draw(window);
+    test_button->draw(window->render());
 
     //Draw pause text
     SDL_SetRenderDrawBlendMode(window->render(), SDL_BLENDMODE_BLEND);
     const SDL_Rect button_inner = test_button->inner_rect();
-    const SDL_Rect text_rect = window->map_rect(
+    const SDL_Rect text_rect = SDL_Rect{
         button_inner.x + 5, button_inner.y + 5,
         button_inner.w - 10, button_inner.h - 10
-    );
+    };
     SDL_RenderCopy(window->render(), pause_text.get(), NULL, &text_rect);
 }
 
 void SchoolTD::draw_debug_points() const noexcept {
     for(const vec2i point : test_lvl_points) {
-        uni::circle point_circle = window->map_circle(
-            point.x, point.y, 10
-        );
         SDL_Rect point_rect = {
-            UNI_UNPACK_CIRCLE(point_circle), point_circle.r
+            point.x, point.y, 10, 10
         };
 
         SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xBF4433FF));
@@ -156,24 +153,24 @@ nodiscard uni::error SchoolTD::init() noexcept {
     if(super_init_error) return super_init_error;
 
     test_lvl_points = {
-        {4, 93},    {27, 91},   {52, 91},
-        {85, 91},   {112, 91},  {146, 95},
-        {177, 97},  {207, 94},  {244, 93},
-        {288, 91},  {330, 90},  {366, 87},
-        {398, 93},  {440, 94},  {485, 94},
-        {506, 95},  {545, 93},  {588, 89},
-        {617, 80},  {642, 87},  {672, 103},
-        {698, 117}, {712, 128}, {721, 143},
-        {721, 158}, {720, 182}, {716, 219},
-        {707, 243}, {700, 259}, {694, 293},
-        {700, 325}, {711, 337}, {724, 351},
-        {729, 373}, {731, 393}, {731, 416},
-        {722, 431}, {693, 443}, {659, 445},
-        {627, 442}, {597, 445}, {561, 444},
-        {525, 444}, {507, 443}, {468, 441},
-        {427, 437}, {379, 431}, {344, 428},
-        {292, 425}, {250, 428}, {190, 428},
-        {118, 417}, {68, 419},  {5, 415}
+        {6, 131},    {38, 128},   {73, 128},
+        {120, 128},  {158, 128},  {205, 134},
+        {249, 136},  {291, 132},  {343, 131},
+        {405, 128},  {464, 127},  {515, 122},
+        {560, 131},  {619, 132},  {682, 132},
+        {712, 134},  {767, 131},  {827, 125},
+        {868, 113},  {903, 122},  {945, 145},
+        {982, 165},  {1001, 180}, {1014, 201},
+        {1014, 222}, {1013, 256}, {1007, 308},
+        {994, 342},  {985, 364},  {976, 412},
+        {985, 457},  {1000, 474}, {1018, 494},
+        {1025, 525}, {1028, 553}, {1028, 585},
+        {1016, 606}, {975, 623},  {927, 626},
+        {882, 622},  {840, 626},  {789, 625},
+        {738, 625},  {713, 623},  {658, 620},
+        {601, 615},  {533, 606},  {484, 602},
+        {411, 598},  {352, 602},  {267, 602},
+        {166, 587},  {96, 589},   {7, 584}
     };
 
     const auto test_lvl_raw = IMG_LoadTexture(
@@ -202,7 +199,7 @@ nodiscard uni::error SchoolTD::init() noexcept {
 
     try {
         test_enemy = std::make_unique<uni::Caterbug>(
-            0, 93, test_lvl_points, window->render()
+            0, test_lvl_points[0].y, test_lvl_points, window->render()
         );
     } catch(uni::error e) {
         return e;
@@ -225,8 +222,8 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     SDL_RenderCopy(window->render(), test_lvl.get(), NULL, NULL);
 
     // Draw sprites
-    test_enemy->draw(window.get());
-    test_tower->draw(window.get(), this->monogram.get());
+    test_enemy->draw(window->render());
+    test_tower->draw(window->render(), this->monogram.get());
 
     #ifdef DEBUG
         if(debug_point_switch.on()) draw_debug_points();
@@ -272,7 +269,7 @@ nodiscard uni::error SchoolTD::loop() noexcept {
         test_tower->update(window.get(), delta_time);
     }
 
-    SDL_RenderPresent(window->render());
+    window->update();
 
     return uni::error::SUCCESS;
 }

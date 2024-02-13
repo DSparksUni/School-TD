@@ -26,7 +26,7 @@ namespace uni {
         nodiscard SDL_Rect rect() const noexcept;
         nodiscard SDL_Rect inner_rect() const noexcept;
 
-        virtual void draw(std::unique_ptr<Window>& window) const noexcept = 0;
+        virtual void draw(SDL_Renderer* render) const noexcept = 0;
 
         bool click(vec2i mouse_pos) const noexcept;
     };
@@ -50,7 +50,7 @@ namespace uni {
         virtual ~PrimitiveButton() = default;
 
         virtual void draw(
-            std::unique_ptr<Window>& window
+            SDL_Renderer* render
         ) const noexcept override;
     };
 
@@ -69,7 +69,7 @@ namespace uni {
         virtual ~ImageButton();
 
         virtual void draw(
-            std::unique_ptr<Window>& window
+            SDL_Renderer* render
         ) const noexcept override;
     };
 }

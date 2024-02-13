@@ -14,6 +14,7 @@ namespace uni {
 
         SDL_Window* m_window;
         SDL_Renderer* m_render;
+        SDL_Texture* m_texture;
 
         nodiscard uint32_t map_to_value(
             uint32_t old_ceil, uint32_t new_ceil, uint32_t val
@@ -30,21 +31,10 @@ namespace uni {
         nodiscard SDL_Window* window() const noexcept;
         nodiscard SDL_Surface* surface() const noexcept;
         nodiscard SDL_Renderer* render() const noexcept;
+        nodiscard SDL_Texture* texture() const noexcept;
 
-        nodiscard uint32_t map_to_width(uint32_t x) const noexcept;
-        nodiscard uint32_t map_to_height(uint32_t y) const noexcept;
-        nodiscard uint32_t intr_map(uint32_t v) const noexcept;
-        nodiscard SDL_Rect map_rect(
-            uint32_t x, uint32_t y, uint32_t w, uint32_t h
-        ) const noexcept;
-        nodiscard SDL_Rect map_rect(SDL_Rect rect) const noexcept;
-        nodiscard circle map_circle(
-            uint32_t x, uint32_t y, uint32_t r
-        ) const noexcept;
-        nodiscard circle map_circle(circle c) const noexcept;
-        nodiscard vec2i map_point(vec2i point) const noexcept;
-        nodiscard vec2i map_point(int x, int y) const noexcept;
-
+        void update() noexcept;
+        
         nodiscard vec2i backwards_map_point(vec2i point) const noexcept;
         nodiscard vec2i backwards_map_point(int x, int y) const noexcept;
 

@@ -38,7 +38,7 @@ namespace uni {
         void aim() noexcept;
         nodiscard bool hit_target() const noexcept;
 
-        void draw(const Window* window) const noexcept;
+        void draw(SDL_Renderer* render) const noexcept;
         void update(double dt) noexcept;
     };
 
@@ -61,9 +61,7 @@ namespace uni {
         Tower(int x, int y, int w, int h);
         virtual ~Tower() = default;
 
-        virtual void draw(
-            const Window* window, Font* font
-        ) const noexcept;
+        virtual void draw(SDL_Renderer* render, Font* font) const noexcept;
         virtual void update(const Window* window, double dt) noexcept;
 
         void shoot() noexcept;
@@ -81,7 +79,7 @@ namespace uni {
         TestTower(int x, int y, int r);
 
         virtual void draw(
-            const Window* window, Font* font
+            SDL_Renderer* render, Font* font
         ) const noexcept override;
         virtual void update(const Window* window, double dt) noexcept override;
 

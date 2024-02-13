@@ -2,7 +2,7 @@
 
 namespace uni {
     Window::Window(uint32_t w, uint32_t h, const char* t):
-        m_width(w), m_scl_width(w), m_height(h), m_scl_height(h) {
+        m_width(w), m_scl_width(1280), m_height(h), m_scl_height(720) {
             this->m_window = SDL_CreateWindow(
                 t, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                 w, h, SDL_WINDOW_RESIZABLE
@@ -13,9 +13,20 @@ namespace uni {
                 this->m_window, -1, SDL_RENDERER_ACCELERATED
             );
             if(!this->m_render) throw error::SDL_RENDERER_CREATION_ERROR;
+
+            this->m_texture = SDL_CreateTexture(
+                this->m_render,
+                SDL_PIXELFORMAT_ARGB8888,
+                SDL_TEXTUREACCESS_TARGET,
+                1280, 720
+            );
+            if(!this->m_texture) throw error::SDL_TEXTURE_CREATION_ERROR;
+
+            SDL_SetRenderTarget(this->m_render, this->m_texture);
     }
 
     Window::~Window() {
+        SDL_DestroyTexture(this->m_texture);
         SDL_DestroyRenderer(this->m_render);
         SDL_DestroyWindow(this->m_window);
     }
@@ -40,6 +51,18 @@ namespace uni {
         return this->m_render;
     }
 
+    void Window::update() noexcept {
+        SDL_SetRenderTarget(this->m_render, NULL);
+
+        SDL_RenderCopyEx(
+            this->m_render, this->m_texture, NULL, NULL,
+            0.0, NULL, SDL_FLIP_NONE
+        );
+        SDL_RenderPresent(this->m_render);
+
+        SDL_SetRenderTarget(this->m_render, this->m_texture);
+    }
+
     nodiscard uint32_t Window::map_to_value(
         uint32_t old_ceil, uint32_t new_ceil, uint32_t val
     ) const noexcept {
@@ -47,6 +70,7 @@ namespace uni {
             ((double)new_ceil / (double)old_ceil) * (double)val + 0.5
         );
     }
+#if false
 
     nodiscard uint32_t Window::map_to_width(uint32_t x) const noexcept {
         return this->map_to_value(this->m_scl_width, this->m_width, x);
@@ -101,7 +125,7 @@ namespace uni {
     nodiscard vec2i Window::map_point(int x, int y) const noexcept {
         return this->map_point(vec2i{x, y});
     }
-
+#endif
     nodiscard vec2i Window::backwards_map_point(vec2i point) const noexcept {
         return vec2i {
             this->map_to_value(

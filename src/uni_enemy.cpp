@@ -109,13 +109,13 @@ namespace uni {
         this->advance();
     }
 
-    void Enemy::draw(const Window* window) const noexcept {
-        SDL_Rect rect = window->map_rect(
+    void Enemy::draw(SDL_Renderer* render) const noexcept {
+        SDL_Rect rect = {
             static_cast<uint32_t>(this->m_pos.x + 0.5f),
             static_cast<uint32_t>(this->m_pos.y + 0.5f),
             this->c_width, this->c_height
-        );
-        SDL_RenderCopy(window->render(), this->m_image.get(), NULL, &rect);
+        };
+        SDL_RenderCopy(render, this->m_image.get(), NULL, &rect);
     }
 
     void Enemy::update(double dt) noexcept {

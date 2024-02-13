@@ -33,12 +33,12 @@ namespace uni {
         return dist(this->pos, *this->target) <= self::TARGET_THRESHOLD;
     }
 
-    void Bullet::draw(const Window* window) const noexcept {
-        const auto mapped = window->map_rect(
+    void Bullet::draw(SDL_Renderer* render) const noexcept {
+        const auto rect = SDL_Rect{
             this->pos.x, this->pos.y, this->width, this->width
-        );
-        SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFF00DAFF));
-        SDL_RenderFillRect(window->render(), &mapped);
+        };
+        SDL_SetRenderDrawColor(render, UNI_UNPACK_COLOR(0xFF00DAFF));
+        SDL_RenderFillRect(render, &rect);
     }
 
     void Bullet::update(double dt) noexcept {
@@ -56,22 +56,20 @@ namespace uni {
         m_rect{x, y, w, h}, m_key_listener(KeyboardListener::get()),
         m_reload(0.0), m_target(vec2i::zero()) {}
 
-    void Tower::draw(
-        const Window* window, Font* font
-    ) const noexcept {
+    void Tower::draw(SDL_Renderer* render, Font* font) const noexcept {
         auto bullet_alive_text = font->render_u8(
-            window->render(), std::to_string(this->m_bullets.size()).c_str(),
+            render, std::to_string(this->m_bullets.size()).c_str(),
             SDL_Color{0, 0, 0, 0xFF}
         ); 
-        auto bullet_alive_rect = window->map_rect(
+        auto bullet_alive_rect = SDL_Rect{
             this->m_rect.x + 6, this->m_rect.y, this->m_rect.w - 10,
             this->m_rect.h
-        );
+        };
         SDL_RenderCopy(
-            window->render(), bullet_alive_text, NULL, &bullet_alive_rect
+            render, bullet_alive_text, NULL, &bullet_alive_rect
         );
 
-        for(const auto& bullet : this->m_bullets) bullet.draw(window);
+        for(const auto& bullet : this->m_bullets) bullet.draw(render);
 
         SDL_DestroyTexture(bullet_alive_text);
     }
@@ -117,20 +115,15 @@ namespace uni {
     TestTower::TestTower(circle c): super{UNI_UNPACK_CIRCLE(c), c.r} {}
     TestTower::TestTower(int x, int y, int r): super{x, y, r, r} {}
 
-    void TestTower::draw(
-        const Window* window, Font* font
-    ) const noexcept {
-        circle mapped_circle = window->map_circle(
-            this->m_rect.x, this->m_rect.y, this->m_rect.w
-        );
-        SDL_Rect mapped_rect = {
-            UNI_UNPACK_CIRCLE(mapped_circle), mapped_circle.r
+    void TestTower::draw(SDL_Renderer* render, Font* font) const noexcept {
+        SDL_Rect rect = {
+            this->m_rect.x, this->m_rect.y, this->m_rect.w, this->m_rect.w
         };
     
-        SDL_SetRenderDrawColor(window->render(), UNI_UNPACK_COLOR(0xFFFF00FF));
-        SDL_RenderFillRect(window->render(), &mapped_rect);
+        SDL_SetRenderDrawColor(render, UNI_UNPACK_COLOR(0xFFFF00FF));
+        SDL_RenderFillRect(render, &rect);
 
-        super::draw(window, font);
+        super::draw(render, font);
     }
 
     void TestTower::update(const Window* window, double dt) noexcept {

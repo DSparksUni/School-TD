@@ -63,7 +63,7 @@ namespace uni {
 
         void reset(vec2i pos) noexcept;
 
-        void draw(const Window* window) const noexcept;
+        void draw(SDL_Renderer* render) const noexcept;
         void update(double dt) noexcept;
     };
 
