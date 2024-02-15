@@ -31,34 +31,34 @@ namespace uni {
         m_path(path), m_path_idx(-1), m_target(vec2i::zero()),
         m_last(vec2i::zero()), m_image(nullptr, nullptr)
     {
-        const rapidjson::Document enemy_data = read_json_data(data_name);
+        const auto enemy_data = Json::get(data_name);
 
-        assert(enemy_data.HasMember("speed"));
-        assert(enemy_data["speed"].IsFloat());
-        this->c_speed = enemy_data["speed"].GetFloat();
+        assert(enemy_data->HasMember("speed"));
+        assert(enemy_data->operator[]("speed").IsFloat());
+        this->c_speed = enemy_data->operator[]("speed").GetFloat();
 
-        assert(enemy_data.HasMember("image"));
-        assert(enemy_data["image"].IsString());
-        std::string img_path = enemy_data["image"].GetString();
+        assert(enemy_data->HasMember("image"));
+        assert(enemy_data->operator[]("image").IsString());
+        std::string img_path = enemy_data->operator[]("image").GetString();
         auto img_raw = IMG_LoadTexture(render, img_path.c_str());
         if(!img_raw) throw error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
         this->m_image = unique_texture(img_raw, uni::SDL_texture_deleter);
 
-        assert(enemy_data.HasMember("width"));
-        assert(enemy_data["width"].IsInt());
-        this->c_width = enemy_data["width"].GetInt();
+        assert(enemy_data->HasMember("width"));
+        assert(enemy_data->operator[]("width").IsInt());
+        this->c_width = enemy_data->operator[]("width").GetInt();
 
-        assert(enemy_data.HasMember("height"));
-        assert(enemy_data["height"].IsInt());
-        this->c_height = enemy_data["height"].GetInt();
+        assert(enemy_data->HasMember("height"));
+        assert(enemy_data->operator[]("height").IsInt());
+        this->c_height = enemy_data->operator[]("height").GetInt();
 
-        assert(enemy_data.HasMember("color"));
-        assert(enemy_data["color"].IsInt64());
-        this->c_color = enemy_data["color"].GetInt64();
+        assert(enemy_data->HasMember("color"));
+        assert(enemy_data->operator[]("color").IsInt64());
+        this->c_color = enemy_data->operator[]("color").GetInt64();
 
-        assert(enemy_data.HasMember("health"));
-        assert(enemy_data["health"].IsInt64());
-        this->m_health = enemy_data["color"].GetInt64();
+        assert(enemy_data->HasMember("health"));
+        assert(enemy_data->operator[]("health").IsInt64());
+        this->m_health = enemy_data->operator[]("color").GetInt64();
 
         this->advance();
     }   

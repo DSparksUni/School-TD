@@ -12,6 +12,7 @@
 
 #include "uni_util.hpp"
 #include "uni_window.hpp"
+#include "uni_json.hpp"
 
 namespace uni {
     class Enemy {
