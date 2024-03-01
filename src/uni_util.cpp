@@ -27,8 +27,10 @@ namespace uni {
         std::stringstream file_content;
 
         file_stream.open(file_path);
-        if((file_stream.rdstate() & std::ifstream::failbit) != 0)
+        if(!file_stream.is_open()) {
+            std::perror("[ERROR] ");
             throw FILE_OPEN_ERROR;
+        }
 
         std::string line;
         while(std::getline(file_stream, line)) file_content << line << '\n';

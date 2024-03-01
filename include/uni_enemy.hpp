@@ -13,6 +13,7 @@
 #include "uni_util.hpp"
 #include "uni_window.hpp"
 #include "uni_json.hpp"
+#include "uni_level.hpp"
 
 namespace uni {
     class Enemy {
@@ -20,7 +21,7 @@ namespace uni {
         using self = Enemy;
     protected:
         vec2f m_pos, m_vel;
-        const std::vector<vec2i>& m_path;
+        const Level* m_path;
         int m_path_idx;
         vec2i m_target;
         vec2i m_last;
@@ -37,23 +38,23 @@ namespace uni {
 
     public:
         Enemy(
-            vec2i pos, const std::vector<vec2i>& path,
+            vec2i pos, const Level* path,
             const char* img_path, SDL_Renderer* render,
             float speed, uint32_t width, uint32_t height,
             uint32_t color
         );
         Enemy(
-            int x, int y, const std::vector<vec2i>& path,
+            int x, int y, const Level* path,
             const char* img_path, SDL_Renderer* render,
             float speed, uint32_t width, uint32_t height,
             uint32_t color
         );
         Enemy(
-            vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render,
+            vec2i pos, const Level* path, SDL_Renderer* render,
             const char* data_name
         );
         Enemy(
-            int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render,
+            int x, int y, const Level* path, SDL_Renderer* render,
             const char* data_name
         );
 
@@ -74,11 +75,11 @@ namespace uni {
         using super = Enemy;
     public:
         Caterbug(
-            vec2i pos, const std::vector<vec2i>& path,
+            vec2i pos, const Level* path,
             SDL_Renderer* render
         );
         Caterbug(
-            int x, int y, const std::vector<vec2i>& path,
+            int x, int y, const Level* path,
             SDL_Renderer* render
         );
     };

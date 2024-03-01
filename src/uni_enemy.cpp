@@ -2,7 +2,7 @@
 
 namespace uni {
     Enemy::Enemy(
-        vec2i pos, const std::vector<vec2i>& path,
+        vec2i pos, const Level* path,
         const char* img_path, SDL_Renderer* render,
         float speed, uint32_t width, uint32_t height,
         uint32_t color
@@ -18,53 +18,54 @@ namespace uni {
         this->advance();
     }
     Enemy::Enemy(
-        int x, int y, const std::vector<vec2i>& path,
+        int x, int y, const Level* path,
         const char* img_path, SDL_Renderer* render,
         float speed, uint32_t width, uint32_t height,
         uint32_t color
     ): Enemy(vec2i{x, y}, path, img_path, render, speed, width, height, color) {}
 
     Enemy::Enemy(
-        vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render,
+        vec2i pos, const Level* path, SDL_Renderer* render,
         const char* data_name
     ):  m_pos(static_cast<vec2f>(pos)), m_vel(vec2i::zero()),
         m_path(path), m_path_idx(-1), m_target(vec2i::zero()),
         m_last(vec2i::zero()), m_image(nullptr, nullptr)
     {
-        const auto enemy_data = Json::get(data_name);
+        rapidjson::Document enemy_data;
+        enemy_data.Parse(Json::get(data_name).c_str());
 
-        assert(enemy_data->HasMember("speed"));
-        assert(enemy_data->operator[]("speed").IsFloat());
-        this->c_speed = enemy_data->operator[]("speed").GetFloat();
+        assert(enemy_data.HasMember("speed"));
+        assert(enemy_data["speed"].IsFloat());
+        this->c_speed = enemy_data["speed"].GetFloat();
 
-        assert(enemy_data->HasMember("image"));
-        assert(enemy_data->operator[]("image").IsString());
-        std::string img_path = enemy_data->operator[]("image").GetString();
+        assert(enemy_data.HasMember("image"));
+        assert(enemy_data["image"].IsString());
+        std::string img_path = enemy_data["image"].GetString();
         auto img_raw = IMG_LoadTexture(render, img_path.c_str());
         if(!img_raw) throw error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
         this->m_image = unique_texture(img_raw, uni::SDL_texture_deleter);
 
-        assert(enemy_data->HasMember("width"));
-        assert(enemy_data->operator[]("width").IsInt());
-        this->c_width = enemy_data->operator[]("width").GetInt();
+        assert(enemy_data.HasMember("width"));
+        assert(enemy_data["width"].IsInt());
+        this->c_width = enemy_data["width"].GetInt();
 
-        assert(enemy_data->HasMember("height"));
-        assert(enemy_data->operator[]("height").IsInt());
-        this->c_height = enemy_data->operator[]("height").GetInt();
+        assert(enemy_data.HasMember("height"));
+        assert(enemy_data["height"].IsInt());
+        this->c_height = enemy_data["height"].GetInt();
 
-        assert(enemy_data->HasMember("color"));
-        assert(enemy_data->operator[]("color").IsInt64());
-        this->c_color = enemy_data->operator[]("color").GetInt64();
+        assert(enemy_data.HasMember("color"));
+        assert(enemy_data["color"].IsInt64());
+        this->c_color = enemy_data["color"].GetInt64();
 
-        assert(enemy_data->HasMember("health"));
-        assert(enemy_data->operator[]("health").IsInt64());
-        this->m_health = enemy_data->operator[]("color").GetInt64();
+        assert(enemy_data.HasMember("health"));
+        assert(enemy_data["health"].IsInt64());
+        this->m_health = enemy_data["color"].GetInt64();
 
         this->advance();
     }   
 
     Enemy::Enemy(
-        int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render,
+        int x, int y, const Level* path, SDL_Renderer* render,
         const char* data_name
     ): self(vec2i{x, y}, path, render, data_name) {}
 
@@ -78,14 +79,14 @@ namespace uni {
     void Enemy::advance() noexcept {
         if(
             static_cast<size_t>(this->m_path_idx + 1) <
-            this->m_path.size()
+            this->m_path->len()
         ) this->m_path_idx++;
-        this->m_last = this->m_path[this->m_path_idx];
+        this->m_last = this->m_path->get(this->m_path_idx);
         this->m_target = (
             static_cast<size_t>(this->m_path_idx + 1) <
-            this->m_path.size()
-        )? this->m_path[this->m_path_idx + 1] :
-           vec2i(0, this->m_path[this->m_path.size() - 1].y);
+            this->m_path->len()
+        )? this->m_path->get(this->m_path_idx + 1) :
+           vec2i(0, this->m_path->get(this->m_path->len() - 1).y);
         
         this->set_direction();
     }
@@ -134,11 +135,11 @@ namespace uni {
 
 
     Caterbug::Caterbug(
-        vec2i pos, const std::vector<vec2i>& path, SDL_Renderer* render
+        vec2i pos, const Level* path, SDL_Renderer* render
     ): super(
-        pos, path, render, "caterbug"
+        pos, path, render, "data/caterbug_data.json"
     ) {}
     Caterbug::Caterbug(
-        int x, int y, const std::vector<vec2i>& path, SDL_Renderer* render
+        int x, int y, const Level* path, SDL_Renderer* render
     ): self(vec2i{x, y}, path, render) {}
 }

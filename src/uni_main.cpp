@@ -24,8 +24,7 @@ private:
     using self = SchoolTD;
     using super = uni::Game;
 
-    std::vector<vec2i> test_lvl_points;
-    uni::unique_texture test_lvl;
+    std::unique_ptr<uni::TestLevel> test_lvl;
     std::unique_ptr<uni::Font> monogram;
     uni::unique_texture pause_text;
     std::unique_ptr<uni::Button> test_button;
@@ -110,9 +109,10 @@ int main(int argc, char** argv) {
 SchoolTD::SchoolTD(
     uint32_t window_width, uint32_t window_height, const char* window_title
 ) noexcept: super(window_width, window_height, window_title),
-            test_lvl(nullptr, nullptr), monogram(nullptr),
-            pause_text(nullptr, nullptr), test_button(nullptr),
-            test_enemy(nullptr), test_tower(nullptr) {}
+            test_lvl(nullptr), monogram(nullptr),
+            pause_text(nullptr, nullptr),
+            test_button(nullptr), test_enemy(nullptr),
+            test_tower(nullptr) {}
 
 void SchoolTD::draw_pause_screen() noexcept {
     // Apply background fade
@@ -138,7 +138,7 @@ void SchoolTD::draw_pause_screen() noexcept {
 }
 
 void SchoolTD::draw_debug_points() const noexcept {
-    for(const vec2i point : test_lvl_points) {
+    for(const vec2i point : test_lvl->path()) {
         SDL_Rect point_rect = {
             point.x, point.y, 10, 10
         };
@@ -152,34 +152,13 @@ nodiscard uni::error SchoolTD::init() noexcept {
     uni::error super_init_error = super::init();
     if(super_init_error) return super_init_error;
 
-    test_lvl_points = {
-        {6, 131},    {38, 128},   {73, 128},
-        {120, 128},  {158, 128},  {205, 134},
-        {249, 136},  {291, 132},  {343, 131},
-        {405, 128},  {464, 127},  {515, 122},
-        {560, 131},  {619, 132},  {682, 132},
-        {712, 134},  {767, 131},  {827, 125},
-        {868, 113},  {903, 122},  {945, 145},
-        {982, 165},  {1001, 180}, {1014, 201},
-        {1014, 222}, {1013, 256}, {1007, 308},
-        {994, 342},  {985, 364},  {976, 412},
-        {985, 457},  {1000, 474}, {1018, 494},
-        {1025, 525}, {1028, 553}, {1028, 585},
-        {1016, 606}, {975, 623},  {927, 626},
-        {882, 622},  {840, 626},  {789, 625},
-        {738, 625},  {713, 623},  {658, 620},
-        {601, 615},  {533, 606},  {484, 602},
-        {411, 598},  {352, 602},  {267, 602},
-        {166, 587},  {96, 589},   {7, 584}
-    };
-
-    const auto test_lvl_raw = IMG_LoadTexture(
-        window->render(), "assets/test_map.png"
-    );
-    if(!test_lvl_raw) return uni::error::SDL_IMAGE_TEXTURE_CREATION_ERROR;
-    test_lvl = uni::unique_texture(
-        test_lvl_raw, uni::SDL_texture_deleter
-    );
+    try {
+        test_lvl = std::make_unique<uni::TestLevel>(
+            window->render()
+        );
+    } catch(uni::error e) {
+        return e;
+    }
 
     try {
         monogram = std::make_unique<uni::Font>("assets/monogram.ttf");
@@ -198,8 +177,9 @@ nodiscard uni::error SchoolTD::init() noexcept {
     );
 
     try {
+        auto path = test_lvl->path();
         test_enemy = std::make_unique<uni::Caterbug>(
-            0, test_lvl_points[0].y, test_lvl_points, window->render()
+            0, path[0].y, test_lvl.get(), window->render()
         );
     } catch(uni::error e) {
         return e;
@@ -219,7 +199,7 @@ nodiscard uni::error SchoolTD::loop() noexcept {
     SDL_RenderClear(window->render());
 
     // Render background
-    SDL_RenderCopy(window->render(), test_lvl.get(), NULL, NULL);
+    test_lvl->draw(window->render());
 
     // Draw sprites
     test_enemy->draw(window->render());
@@ -258,7 +238,9 @@ nodiscard uni::error SchoolTD::loop() noexcept {
         // Reset handler
         if(reset_switch.on()) {
             reset_switch.turn_off();
-            test_enemy->reset(vec2i{0, test_lvl_points[0].y});
+            test_enemy->reset(vec2i{
+                0, (test_lvl->path())[0].y
+            });
         }
     #endif
 

@@ -12,13 +12,11 @@ namespace uni {
     class Json {  
     private:
         static std::unique_ptr<
-            std::unordered_map<const char*, rapidjson::Document>
-        > json_data;
+            std::unordered_map<const char*, std::string>
+        > raw_json_data;
 
         static bool has_data;
     public:
-        nodiscard static rapidjson::Document* get(
-            const char* data_name
-        ) noexcept;
+        nodiscard static std::string get(const char* data_name);
     };
 }
