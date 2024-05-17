@@ -40,6 +40,10 @@ $(TARGET): $(CXX_OBJS)
 $(ODIR)/%.o: %.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS)
 
+.PHONY: remove
+remove:
+	rm $(ODIR)/uni_$(t).o
+
 .PHONY: clean
 clean:
 	rm $(CLEAN)

@@ -3,10 +3,13 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <sstream>
 
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
+#include "maths/maths.h"
 #include "maths/vec.h"
+#include "rapidjson/document.h"
 
 #include "uni_window.hpp"
 #include "uni_util.hpp"
@@ -18,20 +21,20 @@ namespace uni {
     struct Bullet {
     private:
         using self = Bullet;
-        static constexpr float DEFAULT_SPEED = 12.f;
-        static constexpr float TARGET_THRESHOLD = 5.f;
+        static constexpr float DEFAULT_SPEED = 500.f;
+        static constexpr float TARGET_THRESHOLD = 20.f;
     
     public:
         vec2i pos, vel;
-        vec2i* target;
+        SDL_Rect* target;
         const float speed;
         const int width = 5;
 
         Bullet() noexcept;
-        Bullet(vec2i p, vec2i* t, float s) noexcept;
-        Bullet(int px, int py, vec2i* t, float s) noexcept;
-        Bullet(vec2i p, vec2i* t) noexcept;
-        Bullet(int px, int py, vec2i* t) noexcept;
+        Bullet(vec2i p, SDL_Rect* t, float s) noexcept;
+        Bullet(int px, int py, SDL_Rect* t, float s) noexcept;
+        Bullet(vec2i p, SDL_Rect* t) noexcept;
+        Bullet(int px, int py, SDL_Rect* t) noexcept;
 
         void operator=(const Bullet& bullet) noexcept;
 
@@ -45,20 +48,23 @@ namespace uni {
     class Tower {
     private:
         using self = Tower;
-        const double reload_cycle = 2.0;
-        const double reload_mod = 0.25;
-        const double range = 300.0;
+        //const double reload_cycle = 2.0;
+        const double reload_mod = 25.0;
+        //const double range = 300.0;
 
     protected:
         SDL_Rect m_rect;
         std::vector<Bullet> m_bullets;
         std::shared_ptr<KeyboardListener> m_key_listener;
         double m_reload;
-        vec2i m_target;
+        SDL_Rect m_target;
+
+        double m_reload_cycle;
+        double m_range;
         
     public:
-        Tower(SDL_Rect rect);
-        Tower(int x, int y, int w, int h);
+        Tower(SDL_Rect rect, const char* data_name);
+        Tower(int x, int y, int w, int h, const char* data_name);
         virtual ~Tower() = default;
 
         virtual void draw(SDL_Renderer* render, Font* font) const noexcept;

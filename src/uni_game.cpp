@@ -37,9 +37,9 @@ namespace uni {
         this->m_time_last = this->m_time_now;
         this->m_time_now = SDL_GetPerformanceCounter();
         this->delta_time = (double)(
-            (double)(this->m_time_now - this->m_time_last) * 1000.0 /
+            (double)(this->m_time_now - this->m_time_last)*1000.0 /
             (double)SDL_GetPerformanceFrequency()
-        ) * 0.05;
+        ) * 0.001;
 
         this->mouse_listener->update();
 
@@ -51,14 +51,13 @@ namespace uni {
 
     nodiscard uni::error Game::run() noexcept {
         uni::error err = this->init();
-        if(err) goto ret;
+        if(err) this->running = false;
 
         while(this->running) {
             err = this->loop();
-            if(err) goto ret;
+            if(err) this->running = false;
         }
 
-    ret:
         this->destroy();
         return err;
     }

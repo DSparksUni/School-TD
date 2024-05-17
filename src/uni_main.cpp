@@ -11,7 +11,7 @@
 #include "uni.hpp"
 
 static constexpr uint32_t DEFAULT_WINDOW_WIDTH = 910;
-static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = DEFAULT_WINDOW_WIDTH * 9 / 16;
+static constexpr uint32_t DEFAULT_WINDOW_HEIGHT = DEFAULT_WINDOW_WIDTH * 9/16;
 
 static constexpr auto PAUSE_HOTKEY = SDL_SCANCODE_ESCAPE;
 #ifdef DEBUG
@@ -179,7 +179,7 @@ nodiscard uni::error SchoolTD::init() noexcept {
     try {
         auto path = test_lvl->path();
         test_enemy = std::make_unique<uni::Caterbug>(
-            0, path[0].y, test_lvl.get(), window->render()
+            0, test_lvl->get(0).y, test_lvl.get(), window->render()
         );
     } catch(uni::error e) {
         return e;

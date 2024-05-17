@@ -1,6 +1,6 @@
 {
     "image": "assets/enemies/caterbug-001.png",
-    "speed": 2.0,
+    "speed": 50.0,
     "width": 25,
     "height": 25,
     "color": 4294902015,
